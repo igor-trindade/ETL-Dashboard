@@ -25,41 +25,18 @@ public class ConexaoBd {
         }
     }
 
-    // Insere alerta e abre chamado no Jira
-    public static void inserirAlerta(@NotNull Connection conn,
-                                     String dtHora, Integer fkComponente, Object valorColetado,
-                                     String macAdress, String nomeComponente,String metrica) {
-        String sql = """
-            INSERT INTO alerta (dt_hora, fkComponente, valor_coletado, fkMainframe, fkGravidade, fkStatus, fkMetrica)
-            VALUES (?, ?, ?, 
-                    (SELECT id FROM mainframe WHERE macAdress = ?),
-                    1, 1, ?)
-            """;
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, dtHora);
-            stmt.setInt(2, fkComponente);
-            stmt.setObject(3, valorColetado);
-            stmt.setString(4, macAdress);
-            stmt.setInt(5, fkComponente);
-
-            stmt.executeUpdate();
-
-            String descricao = "Valor "+ metrica +" fora do limite: " + valorColetado+" || macAdress: "+macAdress+" || hora: "+dtHora;
-
-            System.out.println("Alerta inserido para " + nomeComponente);
-
-        } catch (SQLException e) {
-            System.err.println("Erro ao inserir alerta: " + e.getMessage());
-        }
-    }
-
     // Busca métricas configuradas para um mainframe
     public static List<List<Object>> buscarMetricas(Connection conn, String macAdress) throws SQLException {
         String sql = """
-        SELECT cm.fkComponente, m.min, m.max, c.nome
+        SELECT 
+            cm.fkComponente, 
+            m.min, 
+            m.max, 
+            c.nome AS nomeComponente,
+            nm.nome AS nomeMetrica
         FROM componente_mainframe cm
-        JOIN metrica m ON m.id = cm.fkMetrica AND m.fkComponente = cm.fkComponente
+        JOIN metrica m ON m.fkComponente = cm.fkComponente
+        JOIN nome_metrica nm ON nm.id = m.fkNomeMetrica
         JOIN componente c ON c.id = cm.fkComponente
         JOIN mainframe mf ON mf.id = cm.fkMainframe
         WHERE mf.macAdress = ?
@@ -76,10 +53,12 @@ public class ConexaoBd {
                         rs.getInt("fkComponente"),
                         rs.getDouble("min"),
                         rs.getDouble("max"),
-                        rs.getString("nome")
+                        rs.getString("nomeComponente"),
+                        rs.getString("nomeMetrica")
                 ));
             }
         }
         return lista;
     }
+
 }

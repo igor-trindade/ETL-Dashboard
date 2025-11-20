@@ -1,119 +1,130 @@
 package sptech.school;
 
-import kong.unirest.ObjectMapper;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConexaoAws {
 
     private static final Region REGION = Region.US_EAST_1;
+
     private static final S3Client s3 = S3Client.builder()
             .region(REGION)
             .credentialsProvider(DefaultCredentialsProvider.create())
             .build();
 
-    private static final List<String> BUCKETS_RAW = new ArrayList<>();
-    private static final List<String> BUCKETS_TRUSTED = new ArrayList<>();
-    private static final List<String> BUCKETS_CLIENT = new ArrayList<>();
-    public static void main(String[] args) {
-        try {
-            System.out.println("Conectando à AWS S3...");
-            List<String> buckets = pegarBucketsS3();
+    // LER CSV DO TRUSTED
 
-            for (String b : buckets) {
-                String nome = b.toLowerCase();
-                if (nome.contains("raw")) BUCKETS_RAW.add(b);
-                else if (nome.contains("trusted")) BUCKETS_TRUSTED.add(b);
-                else if (nome.contains("client")) BUCKETS_CLIENT.add(b);
-            }
+    public static List<String[]> lerArquivoCsvDoTrusted(String nomeArquivo) {
 
-            System.out.println("\nBuckets RAW: " + BUCKETS_RAW);
-            System.out.println("Buckets TRUSTED: " + BUCKETS_TRUSTED);
-            System.out.println("Buckets CLIENT: " + BUCKETS_CLIENT);
+        List<String[]> linhas = new ArrayList<>();
 
-        } catch (Exception e) {
-            System.err.println("Erro ao conectar ou listar buckets: " + e.getMessage());
-        }
-    }
-
-    //Lê um Json do bucket RAW e devolve como lista de linhas
-    public static List<String[]> lerArquivoCsvDoRaw(String nomeArquivo) {
-        ObjectMapper mapper = new ObjectMapper();
-        String bucketTrusted = pegarBucket("trusted");
+        String bucket = pegarBucket("trusted");
 
         try {
             GetObjectRequest getReq = GetObjectRequest.builder()
-                    .bucket(bucketTrusted)
+                    .bucket(bucket)
                     .key(nomeArquivo)
                     .build();
 
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(s3.getObject(getReq)))) {
 
+                String linha;
+                while ((linha = reader.readLine()) != null) {
+                    linhas.add(linha.split(";"));
+                }
 
-
-                Usuario user = mapper.readValue(new File("dados.json"), Usuario.class);
 
             }
 
-            System.out.println("Arquivo lido do Trusted: " + nomeArquivo);
+            System.out.println("Arquivo lido do TRUSTED: " + nomeArquivo);
 
         } catch (Exception e) {
-            System.err.println("Erro ao ler arquivo do Trusted: " + e.getMessage());
+            System.err.println("Erro ao ler arquivo do TRUSTED: " + e.getMessage());
         }
 
         return linhas;
     }
+    public static List<String[]> lerCsvLocal(String nomeArquivo) {
 
-    //Envia Json tratado para o bucket Client
-    public static void enviarJsonClient(String nomeArquivo, String conteudoJson) {
-        String bucketClient = pegarBucket("client");
+            List<String[]> linhas = new ArrayList<>();
+
+            try (BufferedReader reader = new BufferedReader(
+                    new FileReader(nomeArquivo))) {
+
+                String linha;
+
+                while ((linha = reader.readLine()) != null) {
+                    linhas.add(linha.split(";")); // separa do mesmo jeito
+                }
+
+                System.out.println("Arquivo lido LOCALMENTE: " + nomeArquivo);
+
+            } catch (Exception e) {
+                System.err.println("Erro ao ler arquivo local: " + e.getMessage());
+            }
+
+            return linhas;
+   }
+
+    // ENVIAR JSON PARA TRUSTED
+    public static void enviarJsonTrusted(String nomeArquivo, String json) {
+
+        String bucketTrusted = pegarBucket("trusted");
 
         try {
             PutObjectRequest putReq = PutObjectRequest.builder()
-                    .bucket(bucketClient)
+                    .bucket(bucketTrusted)
                     .key(nomeArquivo)
+                    .contentType("application/json")
                     .build();
 
-            s3.putObject(putReq, RequestBody.fromString(conteudoJson));
-            System.out.println("✅ Json tratado enviado para Client: " + nomeArquivo);
+            s3.putObject(putReq, RequestBody.fromString(json));
+            System.out.println("JSON enviado ao TRUSTED: " + nomeArquivo);
 
         } catch (Exception e) {
-            System.err.println("Erro ao enviar Json para Client: " + e.getMessage());
+            System.err.println("Erro ao enviar JSON: " + e.getMessage());
         }
     }
 
-    //Acha o bucket certo pelo nome (raw/trusted/client)
-    private static String pegarBucket(String tipo) {
-        ListBucketsResponse response = s3.listBuckets();
-        for (Bucket b : response.buckets()) {
-            if (b.name().toLowerCase().contains(tipo)) {
-                return b.name();
-            }
-        }
-        throw new RuntimeException("Bucket do tipo '" + tipo + "' não encontrado!");
-    }
 
-    //Lista todos os buckets da conta
+
+    // LISTAR BUCKETS
     public static List<String> pegarBucketsS3() {
+
         List<String> buckets = new ArrayList<>();
+
         try {
             ListBucketsResponse response = s3.listBuckets();
             for (Bucket b : response.buckets()) {
                 buckets.add(b.name());
             }
+
         } catch (S3Exception e) {
             System.err.println("Erro ao listar buckets: " + e.awsErrorDetails().errorMessage());
         }
+
         return buckets;
     }
+    // ACHAR BUCKET PELO NOME
+    public static String pegarBucket(String tipo) {
 
-    //Testa conexão e categoriza buckets
+        ListBucketsResponse response = s3.listBuckets();
+        for (Bucket b : response.buckets()) {
+            if (b.name().toLowerCase().contains(tipo.toLowerCase())) {
+                return b.name();
+            }
+        }
 
+        throw new RuntimeException("Bucket do tipo '" + tipo + "' não encontrado!");
+    }
 }
