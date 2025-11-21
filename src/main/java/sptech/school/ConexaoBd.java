@@ -26,39 +26,41 @@ public class ConexaoBd {
     }
 
     // Busca métricas configuradas para um mainframe
-    public static List<List<Object>> buscarMetricas(Connection conn, String macAdress) throws SQLException {
+    public static List<Object> buscarMetricas(Connection conn, Long macAdress) throws SQLException {
         String sql = """
-        SELECT 
-            cm.fkComponente, 
-            m.min, 
-            m.max, 
-            c.nome AS nomeComponente,
-            nm.nome AS nomeMetrica
-        FROM componente_mainframe cm
-        JOIN metrica m ON m.fkComponente = cm.fkComponente
-        JOIN nome_metrica nm ON nm.id = m.fkNomeMetrica
-        JOIN componente c ON c.id = cm.fkComponente
-        JOIN mainframe mf ON mf.id = cm.fkMainframe
-        WHERE mf.macAdress = ?
+         SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,
+                     (SELECT COUNT(*)
+                         FROM alerta al2
+                         JOIN metrica mt2 ON mt2.id = al2.fkMetrica
+                         JOIN mainframe m2 ON m2.id = mt2.fkMainframe
+                         WHERE m2.macAdress = m.macAdress
+                           AND TIMESTAMPDIFF(HOUR, al2.dt_hora, NOW()) < 24
+                     ) AS incidentes_ultimas_24
+                 FROM mainframe AS m
+                 JOIN metrica AS mt ON m.id = mt.fkMainframe
+                 JOIN alerta AS al ON mt.id = al.fkMetrica
+                 WHERE m.macAdress = ?
+                 ORDER BY al.dt_hora DESC
+                 LIMIT 1;
         """;
 
-        List<List<Object>> lista = new ArrayList<>();
+        List lista = new ArrayList<>();
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, macAdress);
+            stmt.setLong(1, macAdress);
             ResultSet rs = stmt.executeQuery();
 
-            while (rs.next()) {
-                lista.add(List.of(
-                        rs.getInt("fkComponente"),
-                        rs.getDouble("min"),
-                        rs.getDouble("max"),
-                        rs.getString("nomeComponente"),
-                        rs.getString("nomeMetrica")
-                ));
+            if (rs.next()) {
+                lista.add(rs.getString("dif_ultimo_alerta"));
+                lista.add(rs.getString("incidentes_ultimas_24"));
             }
         }
         return lista;
     }
+
+
+
+
+
 
 }
