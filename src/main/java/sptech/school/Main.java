@@ -5,6 +5,7 @@ import software.amazon.awssdk.awscore.util.SignerOverrideUtils;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,20 +20,32 @@ public class Main {
 
        List<String[]> linhas = ConexaoAws.lerCsvLocal("trusted.csv");
             // (linha)[coluna]
-        Integer ultimo = linhas.size() - 1 ;
 
-         System.out.println( linhas.get(0)[0].toString() + " : "+ linhas.get(ultimo)[0].toString());
-         System.out.println( linhas.get(0)[3].toString() + " : "+ linhas.get(ultimo)[3].toString());
-         System.out.println( linhas.get(0)[4].toString() + " : "+ linhas.get(ultimo)[4].toString());
-         System.out.println( linhas.get(0)[8].toString() + " : "+ linhas.get(ultimo)[8].toString());
-         System.out.println( linhas.get(0)[5].toString() + " : "+ linhas.get(ultimo)[5].toString());
+         Integer ultimo = linhas.size() - 1 ;
 
-         String macAdress = linhas.get(1)[0];
+         ArrayList<Double> cpu = new ArrayList<>();
+         ArrayList<Double> ram = new ArrayList<>();
+         ArrayList<Double> disco = new ArrayList<>();
+
+         Long macAdress = Long.valueOf(linhas.get(ultimo)[0]);
+         Double throughput = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
+         Double iops = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
+         Double latencia = Double.valueOf(linhas.get(ultimo)[13].replace(",", "."));
+        System.out.println( linhas.get(0)[13].toString() + " : "+ linhas.get(ultimo)[13].toString());
 
 
+        for (int i = 0; i < 5; i++) {
+            Integer ultimoDado = linhas.size() - 1;
+            cpu.add(Double.valueOf(linhas.get(ultimoDado)[3]));//cpu
+            ram.add(Double.valueOf(linhas.get(ultimoDado)[4]));//ram
+            disco.add(Double.valueOf(linhas.get(ultimoDado)[8]));//Disco
+        }
+
+        Integer eventos;
+        }
 
 
     }
 
-}
+
 
