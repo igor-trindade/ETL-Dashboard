@@ -13,6 +13,8 @@ public class DetalheMainframe {
 
        List<String[]> linhas = ConexaoAws.lerCsvLocal("trusted.csv");
             // (linha)[coluna]
+            // pegar por mainframe - fazer selects nas dashs.
+            // fazer select dos mainframes cadastrados.
 
          Integer ultimo = linhas.size() - 1 ;
 
@@ -24,9 +26,8 @@ public class DetalheMainframe {
          Double throughput = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
          Double iops = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
          Double latencia = Double.valueOf(linhas.get(ultimo)[13].replace(",", "."));
-         System.out.println( linhas.get(0)[13].toString() + " : "+ linhas.get(ultimo)[13].toString());
+         Integer ultimoDado = linhas.size() - 1;
 
-        Integer ultimoDado = linhas.size() - 1;
         for (int i = 0; i < 5; i++) {
             cpu.add(Double.valueOf(linhas.get(ultimoDado)[3].replace(",", ".")));//cpu
             ram.add(Double.valueOf(linhas.get(ultimoDado)[4].replace(",", ".")));//ram
@@ -34,10 +35,11 @@ public class DetalheMainframe {
             ultimoDado--;
         }
 
-
-
         String incidentes = "";
         String minUltimoAlerta = "";
+        String hhmm = "";
+        String fabricante = "";
+        String modelo = "";
 
         try (Connection conn = DriverManager.getConnection(
                 Dotenv.load().get("DB_URL"),
@@ -49,27 +51,34 @@ public class DetalheMainframe {
 
             minUltimoAlerta = dadosDb.get(0).toString();
             incidentes = dadosDb.get(1).toString();
+            fabricante = dadosDb.get(2).toString();
+            modelo = dadosDb.get(3).toString();
 
 
+            Integer hora = (Integer.valueOf(minUltimoAlerta) / 60);
+            Integer minSobra =(Integer.valueOf(minUltimoAlerta) % 60);
+            System.out.println("Hora:" + hora + "Min: " + minSobra);
+            hhmm = hora +"h "+ minSobra+"m ";
         } catch (SQLException e) {
             System.err.println("Erro ao conectar no banco: " + e.getMessage());
         }
 
         System.out.println(
                 "\n MAC: " + macAdress +
-                        "\n CPU: " + cpu +
-                        "\n RAM: " + ram +
-                        "\n Disco: " + disco +
-                        "\n through: " + throughput+
-                        "\n iops: " + iops+
-                        "\n latencia: " + latencia +
-                        "\n incidentes: " + incidentes +
-                        "\n tempoUlti: " + minUltimoAlerta );
+                "\n Fabricante " + fabricante +
+                "\n Modelo " + modelo +
+                "\n CPU: " + cpu +
+                "\n Disco: " + disco +
+                "\n through: " + throughput+
+                "\n RAM: " + ram +
+                "\n iops: " + iops+
+                "\n latencia: " + latencia +
+                "\n incidentes: " + incidentes +
+                "\n tempoUltimoAlerta: " + hhmm );
         }
 
 
 
+
+
     }
-
-
-

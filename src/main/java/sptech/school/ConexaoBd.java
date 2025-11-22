@@ -28,20 +28,20 @@ public class ConexaoBd {
     // Busca métricas configuradas para um mainframe
     public static List<Object> buscarMetricas(Connection conn, Long macAdress) throws SQLException {
         String sql = """
-         SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,
-                     (SELECT COUNT(*)
-                         FROM alerta al2
-                         JOIN metrica mt2 ON mt2.id = al2.fkMetrica
-                         JOIN mainframe m2 ON m2.id = mt2.fkMainframe
-                         WHERE m2.macAdress = m.macAdress
-                           AND TIMESTAMPDIFF(HOUR, al2.dt_hora, NOW()) < 24
-                     ) AS incidentes_ultimas_24
-                 FROM mainframe AS m
-                 JOIN metrica AS mt ON m.id = mt.fkMainframe
-                 JOIN alerta AS al ON mt.id = al.fkMetrica
-                 WHERE m.macAdress = ?
-                 ORDER BY al.dt_hora DESC
-                 LIMIT 1;
+                SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,
+                                    (SELECT COUNT(*)
+                                        FROM alerta al2
+                                        JOIN metrica mt2 ON mt2.id = al2.fkMetrica
+                                        JOIN mainframe m2 ON m2.id = mt2.fkMainframe
+                                        WHERE m2.macAdress = m.macAdress
+                                          AND TIMESTAMPDIFF(HOUR, al2.dt_hora, NOW()) < 24
+                                    ) AS incidentes_ultimas_24, m.fabricante, m.modelo
+                                FROM mainframe AS m
+                                JOIN metrica AS mt ON m.id = mt.fkMainframe
+                                JOIN alerta AS al ON mt.id = al.fkMetrica
+                                WHERE m.macAdress = ?
+                                ORDER BY al.dt_hora DESC
+                                LIMIT 1;
         """;
 
         List lista = new ArrayList<>();
@@ -53,12 +53,13 @@ public class ConexaoBd {
             if (rs.next()) {
                 lista.add(rs.getString("dif_ultimo_alerta"));
                 lista.add(rs.getString("incidentes_ultimas_24"));
+                lista.add(rs.getString("fabricante"));
+                lista.add(rs.getString("modelo"));
             }
         }
         return lista;
     }
-
-
+   // busca todos mainframes
 
 
 

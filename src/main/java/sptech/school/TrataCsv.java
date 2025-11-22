@@ -3,34 +3,35 @@ package sptech.school;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 public class TrataCsv {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    // CONVERTER LISTA CSV → JSON
-    public static String converterCsvParaJson(List<String[]> linhasCsv) {
+    /**
+     * Converte vários mainframes em uma LISTA JSON
+     *
+     * Entrada esperada:
+     * List<Map<String, Object>> listaMainframes
+     *
+     * Saída:
+     * [
+     *   { ... },
+     *   { ... },
+     *   { ... }
+     * ]
+     */
+    public static String converterListaMainframes(List<Map<String, Object>> listaMainframes) {
 
-        if (linhasCsv.isEmpty()) {
-            throw new RuntimeException("CSV vazio");
+        if (listaMainframes == null || listaMainframes.isEmpty()) {
+            throw new RuntimeException("Lista de mainframes vazia");
         }
 
-        String[] header = linhasCsv.get(0);
-        List<Map<String, String>> registros = new ArrayList<>();
-
-        for (int i = 1; i < linhasCsv.size(); i++) {
-
-            String[] valores = linhasCsv.get(i);
-            Map<String, String> map = new LinkedHashMap<>();
-
-            for (int j = 0; j < header.length && j < valores.length; j++) {
-                map.put(header[j], valores[j]);
-            }
-
-            registros.add(map);
-        }
-
-        return gson.toJson(registros);
+        return gson.toJson(listaMainframes);
     }
+
+
+
 }
