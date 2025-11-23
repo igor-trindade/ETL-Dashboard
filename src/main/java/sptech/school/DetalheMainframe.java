@@ -11,18 +11,30 @@ public class DetalheMainframe {
 
     public static void main(String[] args) {
 
-       List<String[]> linhas = ConexaoAws.lerCsvLocal("trusted.csv");
+        try (Connection conn = DriverManager.getConnection(
+                Dotenv.load().get("DB_URL"),
+                Dotenv.load().get("DB_USER"),
+                Dotenv.load().get("DB_PASSWORD"))) {
+
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao conectar no banco: " + e.getMessage());
+        }
+        String mac = "269058769682378";
+
+        List<String[]> linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac,1,"trusted.csv");
+
             // (linha)[coluna]
             // pegar por mainframe - fazer selects nas dashs.
             // fazer select dos mainframes cadastrados.
 
-         Integer ultimo = linhas.size() - 1 ;
+        Integer ultimo = linhas.size() - 1 ;
 
          ArrayList<Double> cpu = new ArrayList<>();
          ArrayList<Double> ram = new ArrayList<>();
          ArrayList<Double> disco = new ArrayList<>();
 
-         Long macAdress = Long.valueOf(linhas.get(ultimo)[0].replace(",", "."));
+         String macAdress = (linhas.get(ultimo)[0].replace(",", ".")).toString();
          Double throughput = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
          Double iops = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
          Double latencia = Double.valueOf(linhas.get(ultimo)[13].replace(",", "."));

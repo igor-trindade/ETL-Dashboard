@@ -23,10 +23,23 @@ public class ConexaoBd {
         } catch (SQLException e) {
             System.err.println("Erro na conexão: " + e.getMessage());
         }
+
+
+        try (Connection conn = DriverManager.getConnection(
+                Dotenv.load().get("DB_URL"),
+                Dotenv.load().get("DB_USER"),
+                Dotenv.load().get("DB_PASSWORD"))) {
+
+            List dadosDb = ConexaoBd.buscarMainFrame(conn,1);
+
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao conectar no banco: " + e.getMessage());
+        }
     }
 
     // Busca métricas configuradas para um mainframe
-    public static List<Object> buscarMetricas(Connection conn, Long macAdress) throws SQLException {
+    public static List<Object> buscarMetricas(Connection conn, String macAdress) throws SQLException {
         String sql = """
                 SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,
                                     (SELECT COUNT(*)
@@ -47,7 +60,7 @@ public class ConexaoBd {
         List lista = new ArrayList<>();
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, macAdress);
+            stmt.setString(1, macAdress);
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
@@ -61,6 +74,31 @@ public class ConexaoBd {
     }
    // busca todos mainframes
 
+    public static List<Object> buscarMainFrame(Connection conn, Integer id) throws SQLException {
+        String sql = """
+            select m.macAdress from empresa e\s
+                    join setor s  on e.id = s.fkempresa
+                    join mainframe m on s.id = m.fksetor
+                    where e.id = ? ;
+                
+        """;
+
+        List lista = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            // next pega prox linha
+            while (rs.next()) {
+                lista.add(rs.getString("macAdress"));
+            }
+
+            System.out.println(lista);
+        }
+        return lista;
+    }
+    // busca todos mainframes
 
 
 

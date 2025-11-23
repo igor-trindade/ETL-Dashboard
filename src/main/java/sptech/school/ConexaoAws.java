@@ -6,6 +6,11 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
@@ -23,7 +28,17 @@ public class ConexaoAws {
 
     // LER CSV DO TRUSTED
 
-    public static List<String[]> lerArquivoCsvDoTrusted(String nomeArquivo) {
+    public static List<String[]> lerArquivoCsvDoTrusted(String mac, Integer empresa ,String nomeArquivo ) {
+
+        LocalDate hoje = LocalDate.now();
+
+        int dia  = hoje.getDayOfMonth();
+        int mes  = hoje.getMonthValue();
+        int ano  = hoje.getYear();
+
+
+        String diretorio = empresa + "/" + mac + "/"+dia + mes + ano + "/" + nomeArquivo;
+
 
         List<String[]> linhas = new ArrayList<>();
 
@@ -32,7 +47,7 @@ public class ConexaoAws {
         try {
             GetObjectRequest getReq = GetObjectRequest.builder()
                     .bucket(bucket)
-                    .key(nomeArquivo)
+                    .key(diretorio)
                     .build();
 
             try (BufferedReader reader = new BufferedReader(
@@ -46,14 +61,15 @@ public class ConexaoAws {
 
             }
 
-            System.out.println("Arquivo lido do TRUSTED: " + nomeArquivo);
+            System.out.println("Arquivo lido do TRUSTED: " + diretorio);
 
         } catch (Exception e) {
-            System.err.println("Erro ao ler arquivo do TRUSTED: " + e.getMessage());
+            System.err.println("Erro ao ler arquivo do  empresa + \"/\" + dia + mes + ano + \"/\": " + e.getMessage());
         }
 
         return linhas;
     }
+
     public static List<String[]> lerCsvLocal(String nomeArquivo) {
 
             List<String[]> linhas = new ArrayList<>();
@@ -70,11 +86,36 @@ public class ConexaoAws {
                 System.out.println("Arquivo lido LOCALMENTE: " + nomeArquivo);
 
             } catch (Exception e) {
+
                 System.err.println("Erro ao ler arquivo local: " + e.getMessage());
             }
 
             return linhas;
    }
+
+
+    public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
+        String sql = """
+            SELECT m.macAdress 
+            FROM empresa e
+            JOIN setor s ON s.fkempresa = e.id
+            JOIN mainframe m ON m.fksetor = s.id
+            WHERE e.id = ?;
+        """;
+
+        List<String> lista = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, empresa);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                lista.add(rs.getString("macAdress"));
+            }
+        }
+
+        return lista;
+    }
 
     // ENVIAR JSON PARA TRUSTED
     public static void enviarJsonTrusted(String nomeArquivo, String json) {
@@ -95,8 +136,6 @@ public class ConexaoAws {
             System.err.println("Erro ao enviar JSON: " + e.getMessage());
         }
     }
-
-
 
     // LISTAR BUCKETS
     public static List<String> pegarBucketsS3() {
