@@ -1,0 +1,394 @@
+[
+  {
+    "dtHora": "2025-11-21 12:45:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 13:20:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 14:15:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 15:15:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 16:55:00",
+    "valorColetado": 98.70,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 17:45:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 18:40:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 18:45:00",
+    "valorColetado": 4.55,
+    "componente": "Processador",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 18:50:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 19:00:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 19:05:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 19:40:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 19:45:00",
+    "valorColetado": 90.20,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 19:50:00",
+    "valorColetado": 90.60,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 19:55:00",
+    "valorColetado": 90.40,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 20:05:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 20:10:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 21:15:00",
+    "valorColetado": 92.40,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 21:20:00",
+    "valorColetado": 92.60,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 21:25:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 21:25:00",
+    "valorColetado": 92.50,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 21:40:00",
+    "valorColetado": 91.00,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-21 23:45:00",
+    "valorColetado": 98.88,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 00:05:00",
+    "valorColetado": 90.30,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 00:10:00",
+    "valorColetado": 90.20,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 00:55:00",
+    "valorColetado": 95.16,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 01:15:00",
+    "valorColetado": 90.90,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 04:35:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 05:05:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 05:20:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 06:40:00",
+    "valorColetado": 90.20,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 06:45:00",
+    "valorColetado": 90.70,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 06:50:00",
+    "valorColetado": 91.20,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 08:25:00",
+    "valorColetado": 92.20,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 09:55:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 11:20:00",
+    "valorColetado": 95.29,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 11:35:00",
+    "valorColetado": 0.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 12:55:00",
+    "valorColetado": 91.60,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "269058769682378",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 13:15:00",
+    "valorColetado": 97.93,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:15:00",
+    "valorColetado": 97.40,
+    "componente": "Memória RAM",
+    "gravidade": "Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:15:00",
+    "valorColetado": 97.00,
+    "componente": "Disco Rígido",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:20:00",
+    "valorColetado": 97.89,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:20:00",
+    "valorColetado": 97.80,
+    "componente": "Memória RAM",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:20:00",
+    "valorColetado": 97.00,
+    "componente": "Disco Rígido",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:25:00",
+    "valorColetado": 97.86,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:25:00",
+    "valorColetado": 97.70,
+    "componente": "Memória RAM",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:25:00",
+    "valorColetado": 97.00,
+    "componente": "Disco Rígido",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:30:00",
+    "valorColetado": 97.80,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  },
+  {
+    "dtHora": "2025-11-22 13:30:00",
+    "valorColetado": 97.00,
+    "componente": "Disco Rígido",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Aoki"
+  }
+]
