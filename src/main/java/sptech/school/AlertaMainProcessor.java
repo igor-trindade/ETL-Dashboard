@@ -22,7 +22,7 @@ public class AlertaMainProcessor {
 
         System.out.println("Iniciando Processador de Alertas em modo: " + modoExecucao.toUpperCase());
 
-        try (Connection conn = ConexaoBd.getConnection()) {
+        try (Connection conn = ConexaoBd.getConnection()) { // Usa getConnection() da ConexaoBd
 
             if (modoExecucao.equalsIgnoreCase("AWS")) {
 
@@ -50,8 +50,6 @@ public class AlertaMainProcessor {
                 // Leitura local do trusted.csv
                 System.out.println("Modo SIMULADO: Lendo arquivo de dados localmente (" + NOME_ARQUIVO_DADOS + ")...");
                 List<String[]> dadosMainframe = GeradorAlertas.lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
-
-                // Processa todos os dados lidos
                 GeradorAlertas.processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
 
             } else {
@@ -59,19 +57,21 @@ public class AlertaMainProcessor {
                 return;
             }
 
-            // Salvando csv de alertas
+            // json
             if (!listaAlertas.isEmpty()) {
-                String csvAlertas = GeradorAlertas.montarCsvAlertas(listaAlertas);
-                String nomeArquivoAlertas = "alertas_empresa_" + ID_EMPRESA + ".csv";
+
+                String jsonAlertas = GeradorAlertas.montarJsonAlertas(listaAlertas);
+                String nomeArquivoAlertas = "alertas_empresa_" + ID_EMPRESA + ".json";
 
                 if (modoExecucao.equalsIgnoreCase("AWS")) {
 
-                    // Salva como json no S3 client ConexaoAws.salvarJsonNoS3
-                    ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, csvAlertas);
+                    // Salva json no S3
+                    ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, jsonAlertas);
+                    System.out.println("✅ JSON de Alertas enviado ao S3 CLIENT: " + nomeArquivoAlertas);
+
 
                 } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
-                    // Salva na pasta raiz localmente
-                    salvarCsvLocal(nomeArquivoAlertas, csvAlertas);
+                    salvarJsonLocal(nomeArquivoAlertas, jsonAlertas);
                 }
             } else {
                 System.out.println("Nenhum alerta gerado.");
@@ -85,13 +85,13 @@ public class AlertaMainProcessor {
         }
     }
 
-    // salvar o CSV localmente (SIMULADO)
-    private static void salvarCsvLocal(String nomeArquivo, String csvContent) {
+    // NOVO MÉTODO: Salva o JSON localmente (SIMULADO)
+    private static void salvarJsonLocal(String nomeArquivo, String jsonContent) {
         try (FileWriter writer = new FileWriter(nomeArquivo)) {
-            writer.write(csvContent);
-            System.out.println("✅ CSV de Alertas salvo localmente: " + nomeArquivo);
+            writer.write(jsonContent);
+            System.out.println("✅ JSON de Alertas salvo localmente: " + nomeArquivo);
         } catch (IOException e) {
-            System.err.println("❌ Erro ao salvar CSV localmente: " + e.getMessage());
+            System.err.println("❌ Erro ao salvar JSON localmente: " + e.getMessage());
         }
     }
 }
