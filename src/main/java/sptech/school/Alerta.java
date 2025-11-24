@@ -1,5 +1,7 @@
 package sptech.school;
 
+import java.util.Locale;
+
 public class Alerta {
     private String dtHora;
     private Double valorColetado;
@@ -17,10 +19,17 @@ public class Alerta {
         this.identificacaoMainframe = identificacaoMainframe;
     }
 
-    //
     @Override
     public String toString() {
-        return String.format("%s;%.2f;%s;%s;%s;%s",
+        return String.format(Locale.US,
+                "  {\n" +
+                        "    \"dtHora\": \"%s\",\n" +
+                        "    \"valorColetado\": %.2f,\n" +
+                        "    \"componente\": \"%s\",\n" +
+                        "    \"gravidade\": \"%s\",\n" +
+                        "    \"macAdress\": \"%s\",\n" +
+                        "    \"identificacaoMainframe\": \"%s\"\n" +
+                        "  }",
                 dtHora,
                 valorColetado,
                 componente,
