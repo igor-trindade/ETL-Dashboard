@@ -93,6 +93,30 @@ public class ConexaoAws {
             return linhas;
    }
 
+    public static List<String> listarDiretorios() {
+        List<String> diretorios = new ArrayList<>();
+        String bucket = pegarBucket("trusted"); // seu bucket "trusted"
+
+        try {
+            ListObjectsV2Request listReq = ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix("1/")
+                    .delimiter("/")
+                    .build();
+
+            ListObjectsV2Response res = s3.listObjectsV2(listReq);
+
+
+            res.commonPrefixes().forEach(cp -> diretorios.add(cp.prefix()));
+
+            System.out.println("Diretórios encontrados dentro de 1/: " + diretorios);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao listar diretórios: " + e.getMessage());
+        }
+
+        return diretorios;
+    }
 
     public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
         String sql = """
@@ -118,22 +142,22 @@ public class ConexaoAws {
     }
 
     // ENVIAR JSON PARA TRUSTED
-    public static void enviarJsonTrusted(String nomeArquivo, String json) {
 
-        String bucketTrusted = pegarBucket("trusted");
+    public static void salvarJsonNoS3(String nomeArquivo, String json) {
+        String bucketClient = pegarBucket("client"); // define bucket client
 
         try {
             PutObjectRequest putReq = PutObjectRequest.builder()
-                    .bucket(bucketTrusted)
+                    .bucket(bucketClient)
                     .key(nomeArquivo)
                     .contentType("application/json")
                     .build();
 
             s3.putObject(putReq, RequestBody.fromString(json));
-            System.out.println("JSON enviado ao TRUSTED: " + nomeArquivo);
+            System.out.println("JSON enviado ao CLIENT S3: " + nomeArquivo);
 
         } catch (Exception e) {
-            System.err.println("Erro ao enviar JSON: " + e.getMessage());
+            System.err.println("Erro ao enviar JSON para CLIENT: " + e.getMessage());
         }
     }
 

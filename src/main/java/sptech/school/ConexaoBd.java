@@ -2,6 +2,7 @@ package sptech.school;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.jetbrains.annotations.NotNull;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.sql.*;
@@ -99,7 +100,29 @@ public class ConexaoBd {
         return lista;
     }
     // busca todos mainframes
+// Dentro da classe ConexaoAws
 
+    public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
+        String sql = """
+            SELECT m.macAdress 
+            FROM empresa e
+            JOIN setor s ON s.fkempresa = e.id
+            JOIN mainframe m ON m.fksetor = s.id
+            WHERE e.id = ?;
+        """;
 
+        List<String> lista = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, empresa);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                lista.add(rs.getString("macAdress"));
+            }
+        }
+
+        return lista;
+    }
 
 }
