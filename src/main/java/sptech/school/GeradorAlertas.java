@@ -147,10 +147,6 @@ public class GeradorAlertas {
                     String gravidade = definirGravidade(valorColetado, limiteMin, limiteMax);
 
                     if (gravidade != null && !gravidade.equals("Normal")) {
-                        // Assumindo que ConexaoBd.inserirAlerta() ainda existe
-                        ConexaoBd.inserirAlerta(conn, dtHora, nomeComponenteBd, valorColetado, macAdress, identificacaoMainframe, gravidade);
-
-                        // O Alerta.toString() deve estar formatado para JSON
                         listaAlertas.add(new Alerta(dtHora, valorColetado, nomeComponenteBd, gravidade, macAdress, identificacaoMainframe));
                     }
 
