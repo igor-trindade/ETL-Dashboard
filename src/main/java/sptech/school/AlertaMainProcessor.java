@@ -53,7 +53,7 @@ public class AlertaMainProcessor {
                 GeradorAlertas.processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
 
             } else {
-                System.err.println("❌ MODO_EXECUCAO inválido no .env. Use 'AWS' ou 'SIMULADO'.");
+                System.err.println("MODO_EXECUCAO inválido no .env. Use 'AWS' ou 'SIMULADO'.");
                 return;
             }
 
@@ -67,7 +67,7 @@ public class AlertaMainProcessor {
 
                     // Salva json no S3
                     ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, jsonAlertas);
-                    System.out.println("✅ JSON de Alertas enviado ao S3 CLIENT: " + nomeArquivoAlertas);
+                    System.out.println("JSON de Alertas enviado ao S3 CLIENT: " + nomeArquivoAlertas);
 
 
                 } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
@@ -89,9 +89,9 @@ public class AlertaMainProcessor {
     private static void salvarJsonLocal(String nomeArquivo, String jsonContent) {
         try (FileWriter writer = new FileWriter(nomeArquivo)) {
             writer.write(jsonContent);
-            System.out.println("✅ JSON de Alertas salvo localmente: " + nomeArquivo);
+            System.out.println("JSON de Alertas salvo localmente: " + nomeArquivo);
         } catch (IOException e) {
-            System.err.println("❌ Erro ao salvar JSON localmente: " + e.getMessage());
+            System.err.println("Erro ao salvar JSON localmente: " + e.getMessage());
         }
     }
 }
