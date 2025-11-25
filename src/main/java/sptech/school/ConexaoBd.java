@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import static sptech.school.IntegracaoJira.abrirChamado;
 
 
 public class ConexaoBd {
@@ -176,87 +175,6 @@ public class ConexaoBd {
         }
         return limites;
     }
-
-    private static String formatarDataSql(String dtHora) {
-        try {
-            // Divide em data e hora
-            String[] partes = dtHora.split(" ");
-            String data = partes[0]; // Ex: 21/11/2025
-            String hora = partes[1]; // Ex: 12:45
-
-            // Divide a data (DD, MM, YYYY)
-            String[] dataPartes = data.split("/");
-            String dia = dataPartes[0];
-            String mes = dataPartes[1];
-            String ano = dataPartes[2];
-
-            // Reconstrói no formato YYYY-MM-DD HH:MM:SS
-            return String.format("%s-%s-%s %s:00", ano, mes, dia, hora);
-        } catch (Exception e) {
-            System.err.println("Erro ao formatar data '" + dtHora + "'. Usando valor original.");
-            return dtHora;
-        }
-    }
-
-    // Insere o alerta na tabela alerta e descobre o fkMetrica
-    public static void inserirAlerta(Connection conn,
-                                     String dtHora, String nomeComponente, Double valorColetado,
-                                     String macAdress, String identificacaoMainframe, String gravidade) {
-
-        // Descobrir o ID da gravidade
-        String gravidadeChave = gravidade;
-        if(gravidade.equalsIgnoreCase("Emergência")) gravidadeChave = "Emergencia";
-
-        Integer fkGravidade = MAP_GRAVIDADE_FK.getOrDefault(gravidadeChave, 4);
-        if (fkGravidade == 4) return;
-
-        String sql = """
-            INSERT INTO alerta (dt_hora, valor_coletado, fkGravidade, fkStatus, fkMetrica)
-            VALUES (?, ?, ?, 1, (
-                SELECT m.id 
-                FROM metrica m
-                JOIN mainframe mf ON m.fkMainframe = mf.id
-                JOIN componente c ON m.fkComponente = c.id
-                WHERE mf.macAdress = ? AND c.nome = ? AND m.fkTipo = 1
-                LIMIT 1
-            ));
-        """;// fkStatus 1 = 'Aberto'
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            // Formatar Data: AGORA USA A FUNÇÃO DE CONVERSÃO
-            stmt.setString(1, formatarDataSql(dtHora));
-            stmt.setDouble(2, valorColetado);
-            stmt.setInt(3, fkGravidade);
-            stmt.setString(4, macAdress);
-            stmt.setString(5, nomeComponente);
-
-            int linhasAfetadas = stmt.executeUpdate();
-
-            if (linhasAfetadas > 0) {
-                System.out.printf("✅ Alerta %s inserido no BD para %s | Componente: %s | Valor: %.2f%%%n",
-                        gravidade, identificacaoMainframe, nomeComponente, valorColetado);
-
-                // Integração com Jira
-                if (fkGravidade <= 3) {
-                    String summary = String.format("ALERTA %s: %s em %s", gravidade.toUpperCase(), nomeComponente, identificacaoMainframe);
-                    String description = String.format(
-                            "O Mainframe %s (MAC: %s) apresentou comportamento anômalo.\n" +
-                                    "Componente: %s\n" +
-                                    "Valor Coletado: %.2f%%\n" +
-                                    "Gravidade: %s\n" +
-                                    "Data/Hora: %s",
-                            identificacaoMainframe, macAdress, nomeComponente, valorColetado, gravidade, dtHora
-                    );
-                    abrirChamado(summary, description);
-                }
-            } else {
-                System.err.println("⚠️ Alerta não inserido. Verifique se o MAC Address e o Componente existem na tabela 'metrica'.");
-            }
-
-        } catch (SQLException e) {
-            System.err.println("❌ Erro SQL ao inserir alerta: " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("❌ Erro ao abrir chamado no Jira: " + e.getMessage());
-        }
-    }
 }
+
+
