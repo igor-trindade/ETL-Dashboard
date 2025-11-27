@@ -9,101 +9,116 @@ import java.io.FileWriter;
 import java.io.IOException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 public class DetalheMainframe {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static void main(String[] args) {
-        List<String> macs = new ArrayList<>();
-        Integer empresa = 1;
+
+        List<String> idEmpresas = new ArrayList<>();
 
         try (Connection conn = DriverManager.getConnection(
                 Dotenv.load().get("DB_URL"),Dotenv.load().get("DB_USER"),Dotenv.load().get("DB_PASSWORD"))) {
-
+            idEmpresas = ConexaoBd.listaEmpresas(conn);
         } catch (SQLException e) {
             System.err.println("Erro ao conectar no banco: " + e.getMessage());
         }
 
-        List<String> dirs = ConexaoAws.listarDiretorios();
-        List<Map<String, Object>> mainframesJson = new ArrayList<>();
+        // ====== ALTERAÇÃO MÍNIMA: array final de empresas ======
+        List<Map<String, Object>> empresasJson = new ArrayList<>();
 
-        for (String dir : dirs) {
+        for(String empresa : idEmpresas){
 
-            String mac = dir.replace("1/", "").replace("/", "");
+            // ====== ALTERAÇÃO MÍNIMA: array da empresa ======
+            List<Map<String, Object>> mainframesJson = new ArrayList<>();
 
-            List<String[]> linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac, empresa, "trusted.csv");
-            if (linhas.isEmpty()) continue;
+            List<String> dirs = ConexaoAws.listarDiretorios(empresa);
 
-            Integer ultimo = linhas.size() - 1;
+            for (String dir : dirs) {
 
-            ArrayList<Double> cpu = new ArrayList<>();
-            ArrayList<Double> ram = new ArrayList<>();
-            ArrayList<Double> disk = new ArrayList<>();
+                String mac = dir.replace("1/", "").replace("/", "");
 
-            String macAdress = linhas.get(ultimo)[0].replace(",", ".");
-            Double throughput = Double.valueOf(linhas.get(ultimo)[6].replace(",", "."));
-            Double iops = Double.valueOf(linhas.get(ultimo)[7].replace(",", "."));
-            Double latencia = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
-            Integer ultimoDado = linhas.size() - 1;
+                List<String[]> linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac, empresa, "trusted.csv");
+                if (linhas.isEmpty()) continue;
 
-            for (int i = 0; i < 5; i++) {
-                cpu.add(Double.valueOf(linhas.get(ultimoDado)[3].replace(",", ".")));
-                ram.add(Double.valueOf(linhas.get(ultimoDado)[4].replace(",", ".")));
-                disk.add(Double.valueOf(linhas.get(ultimoDado)[5].replace(",", ".")));
-                ultimoDado--;
-            }
+                Integer ultimo = linhas.size() - 1;
 
-            String incidentes = "";
-            String minUltimoAlerta = "";
-            String hhmm = "";
-            String fabricante = "";
-            String modelo = "";
+                ArrayList<Double> cpu = new ArrayList<>();
+                ArrayList<Double> ram = new ArrayList<>();
+                ArrayList<Double> disk = new ArrayList<>();
 
-            try (Connection conn = DriverManager.getConnection(
-                    Dotenv.load().get("DB_URL"),Dotenv.load().get("DB_USER"),Dotenv.load().get("DB_PASSWORD"))) {
+                String macAdress = linhas.get(ultimo)[0].replace(",", ".");
+                Double throughput = Double.valueOf(linhas.get(ultimo)[6].replace(",", "."));
+                Double iops = Double.valueOf(linhas.get(ultimo)[7].replace(",", "."));
+                Double latencia = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
+                Integer ultimoDado = linhas.size() - 1;
 
-                List dadosDb = ConexaoBd.buscarMetricas(conn, macAdress);
-
-                if (!dadosDb.isEmpty()) {
-                    minUltimoAlerta = dadosDb.get(0).toString();
-                    incidentes = dadosDb.get(1).toString();
-                    fabricante = dadosDb.get(2).toString();
-                    modelo = dadosDb.get(3).toString();
-
-                    Integer hora = Integer.valueOf(minUltimoAlerta) / 60;
-                    Integer minSobra = Integer.valueOf(minUltimoAlerta) % 60;
-                    hhmm = hora + "h " + minSobra + "m";
+                for (int i = 0; i < 5; i++) {
+                    cpu.add(Double.valueOf(linhas.get(ultimoDado)[3].replace(",", ".")));
+                    ram.add(Double.valueOf(linhas.get(ultimoDado)[4].replace(",", ".")));
+                    disk.add(Double.valueOf(linhas.get(ultimoDado)[5].replace(",", ".")));
+                    ultimoDado--;
                 }
 
-            } catch (SQLException e) {
-                System.err.println("Erro ao conectar no banco: " + e.getMessage());
+                String incidentes = "";
+                String minUltimoAlerta = "";
+                String hhmm = "";
+                String fabricante = "";
+                String modelo = "";
+
+                try (Connection conn = DriverManager.getConnection(
+                        Dotenv.load().get("DB_URL"),Dotenv.load().get("DB_USER"),Dotenv.load().get("DB_PASSWORD"))) {
+
+                    List dadosDb = ConexaoBd.buscarMetricas(conn, macAdress);
+
+                    if (!dadosDb.isEmpty()) {
+                        minUltimoAlerta = dadosDb.get(0).toString();
+                        incidentes = dadosDb.get(1).toString();
+                        fabricante = dadosDb.get(2).toString();
+                        modelo = dadosDb.get(3).toString();
+
+                        Integer hora = Integer.valueOf(minUltimoAlerta) / 60;
+                        Integer minSobra = Integer.valueOf(minUltimoAlerta) % 60;
+                        hhmm = hora + "h " + minSobra + "m";
+                    }
+
+                } catch (SQLException e) {
+                    System.err.println("Erro ao conectar no banco: " + e.getMessage());
+                }
+
+                Map<String, Object> mainframe = new HashMap<>();
+                mainframe.put("nome", modelo);
+                mainframe.put("cpu", cpu);
+                mainframe.put("ram", ram);
+                mainframe.put("disk", disk);
+                mainframe.put("Fabricante", fabricante);
+                mainframe.put("mac", macAdress);
+                mainframe.put("throughput", throughput);
+                mainframe.put("eventos", Integer.valueOf(incidentes));
+                mainframe.put("iops", iops);
+                mainframe.put("latencia", latencia);
+
+                mainframesJson.add(mainframe);
             }
 
-            // Monta mapa com dados reais
-            Map<String, Object> mainframe = new HashMap<>();
-            mainframe.put("nome", modelo);
-            mainframe.put("cpu", cpu);
-            mainframe.put("ram", ram);
-            mainframe.put("disk", disk);
-            mainframe.put("Fabricante", fabricante);
-            mainframe.put("mac", macAdress);
-            mainframe.put("throughput", throughput);
-            mainframe.put("eventos", Integer.valueOf(incidentes));
-            mainframe.put("iops", iops);
-            mainframe.put("latencia", latencia);
-            mainframesJson.add(mainframe);
+            // ====== ALTERAÇÃO MÍNIMA: empacotar dentro do objeto da empresa ======
+            Map<String, Object> empresaJson = new HashMap<>();
+            empresaJson.put("empresa", empresa);
+            empresaJson.put("mainframes", mainframesJson);
+
+            empresasJson.add(empresaJson);
         }
 
-        String jsonFinal = gson.toJson(mainframesJson);
+        // ====== ALTERAÇÃO MÍNIMA: gerar JSON final fora do for ======
+        String jsonFinal = gson.toJson(empresasJson);
 
-        // Exibe no console
         System.out.println(jsonFinal);
 
-        // Salva json
         try (FileWriter writer = new FileWriter("mainframes.json")) {
             writer.write(jsonFinal);
-            ConexaoAws.salvarJsonNoS3("dashIgor.json", jsonFinal);
+            ConexaoAws.salvarJsonNoS3("detalhesMainframe.json", jsonFinal);
         } catch (IOException e) {
             System.err.println("Erro ao salvar JSON: " + e.getMessage());
         }

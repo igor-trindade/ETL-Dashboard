@@ -27,8 +27,33 @@ public class ConexaoAws {
             .build();
 
     // LER CSV DO TRUSTED
+    public static List<String> listarDiretorios(String idEmpresa) {
+        List<String> diretorios = new ArrayList<>();
+        String bucket = pegarBucket("trusted");
 
-    public static List<String[]> lerArquivoCsvDoTrusted(String mac, Integer empresa ,String nomeArquivo ) {
+        try {
+            ListObjectsV2Request listReq = ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(idEmpresa+"/")
+                    .delimiter("/")
+                    .build();
+
+            ListObjectsV2Response res = s3.listObjectsV2(listReq);
+
+
+            res.commonPrefixes().forEach(cp -> diretorios.add(cp.prefix()));
+
+            System.out.println("Diretórios encontrados dentro de "+idEmpresa+"/: " + diretorios);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao listar diretórios: " + e.getMessage());
+        }
+
+        return diretorios;
+    }
+
+
+    public static List<String[]> lerArquivoCsvDoTrusted(String mac, String empresa ,String nomeArquivo ) {
 
         LocalDate hoje = LocalDate.now();
 
@@ -64,7 +89,7 @@ public class ConexaoAws {
             System.out.println("Arquivo lido do TRUSTED: " + diretorio);
 
         } catch (Exception e) {
-            System.err.println("Erro ao ler arquivo do  empresa + \"/\" + dia + mes + ano + \"/\": " + e.getMessage());
+            System.err.println("Empresa sem Registro de Mainframe no Bucket");
         }
 
         return linhas;
@@ -93,32 +118,7 @@ public class ConexaoAws {
             return linhas;
    }
 
-    public static List<String> listarDiretorios() {
-        List<String> diretorios = new ArrayList<>();
-        String bucket = pegarBucket("trusted"); // seu bucket "trusted"
-
-        try {
-            ListObjectsV2Request listReq = ListObjectsV2Request.builder()
-                    .bucket(bucket)
-                    .prefix("1/")
-                    .delimiter("/")
-                    .build();
-
-            ListObjectsV2Response res = s3.listObjectsV2(listReq);
-
-
-            res.commonPrefixes().forEach(cp -> diretorios.add(cp.prefix()));
-
-            System.out.println("Diretórios encontrados dentro de 1/: " + diretorios);
-
-        } catch (Exception e) {
-            System.err.println("Erro ao listar diretórios: " + e.getMessage());
-        }
-
-        return diretorios;
-    }
-
-    public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
+   public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
         String sql = """
             SELECT m.macAdress 
             FROM empresa e
@@ -140,6 +140,7 @@ public class ConexaoAws {
 
         return lista;
     }
+
 
     // ENVIAR JSON PARA TRUSTED
 
