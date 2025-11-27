@@ -14,7 +14,7 @@ import java.util.Map;
 public class GeradorAlertas {
 
     private static final Double LIMITE_MAXIMO_ALERTA = 100.0;
-    private static final String NOME_ARQUIVO_DADOS_SIMULADO = "trusted.csv"; // Arquivo padrão para Simulado/Local
+    private static final String NOME_ARQUIVO_DADOS_SIMULADO = "trusted.csv";
 
     private static final int INDICE_MAC_ADRESS = 0;
     private static final int INDICE_DT_HORA = 1;
@@ -22,65 +22,6 @@ public class GeradorAlertas {
     private static final int INDICE_CPU = 3;
     private static final int INDICE_RAM = 4;
     private static final int INDICE_DISCO = 5;
-
-
-    // gerar json alertas
-    public static String gerarJsonAlertas() {
-        Dotenv dotenv = Dotenv.load();
-        String modoExecucao = dotenv.get("MODO_EXECUCAO", "LOCAL");
-        List<String[]> dadosMainframe = null;
-        List<Alerta> listaAlertas = new ArrayList<>();
-
-        // rxtract (Leitura do CSV)
-        if (modoExecucao.equalsIgnoreCase("AWS")) {
-            System.out.println("Lendo dados do bucket TRUSTED (AWS)...");
-
-
-
-
-
-        } else if (modoExecucao.equalsIgnoreCase("SIMULADO") || modoExecucao.equalsIgnoreCase("LOCAL")) {
-            try {
-                System.out.println("Lendo arquivo de dados localmente: " + NOME_ARQUIVO_DADOS_SIMULADO);
-                dadosMainframe = lerArquivoCsvLocal(NOME_ARQUIVO_DADOS_SIMULADO);
-            } catch (IOException e) {
-                System.err.println("Erro ao ler arquivo local: " + e.getMessage());
-                return "[]";
-            }
-        }
-
-        if (dadosMainframe == null || dadosMainframe.isEmpty()) {
-            System.out.println("Nenhuma linha de dados encontrada para processamento.");
-            return "[]";
-        }
-
-        // transform and Load (Conexão e Processamento)
-        try (Connection conn = ConexaoBd.getConnection()) {
-
-            System.out.println("Conexão com BD estabelecida. Processando dados e gerando alertas...");
-
-            // reutiliza a função que processa os dados, busca limites e insere no BD
-            processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
-
-        } catch (SQLException e) {
-            System.err.println("Erro de SQL (conexão ou processamento): " + e.getMessage());
-        }
-
-        // output (Montar JSON e Salvar/Exibir)
-        String jsonAlertas = montarJsonAlertas(listaAlertas);
-
-        if (modoExecucao.equalsIgnoreCase("SIMULADO") || modoExecucao.equalsIgnoreCase("LOCAL")) {
-            System.out.println("\n--- SAÍDA JSON DOS ALERTAS GERADOS (Modo " + modoExecucao.toUpperCase() + ") ---");
-            System.out.println(jsonAlertas);
-        } else if (modoExecucao.equalsIgnoreCase("AWS")) {
-            String nomeArquivoJson = "alertas_" + System.currentTimeMillis() + ".json";
-            ConexaoAws.salvarJsonNoS3(nomeArquivoJson, jsonAlertas);
-            System.out.println("JSON gerado com sucesso. Lógica de envio para AWS S3 deve ser implementada/descomentada.");
-        }
-
-        return jsonAlertas;
-    }
-
 
     // processa os dados de um mainframe especifico
     public static void processarDadosParaAlertas(Connection conn, List<String[]> dadosMainframe, List<Alerta> listaAlertas) {
@@ -118,9 +59,6 @@ public class GeradorAlertas {
             }
         }
     }
-
-    // ------------------------------------------------------------------------------------------------------------------
-    // ------------------------------------------------------------------------------------------------------------------
 
     // verifica a linha
     private static void processarLinhaMainframe(Connection conn, List<Alerta> listaAlertas, String[] linha,

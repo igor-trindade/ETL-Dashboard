@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+// import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +61,10 @@ public class ConexaoAws {
         int dia  = hoje.getDayOfMonth();
         int mes  = hoje.getMonthValue();
         int ano  = hoje.getYear();
+
+        // LocalDate hoje = LocalDate.now();
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+        // String dataFormatada = hoje.format(formatter);
 
 
         String diretorio = empresa + "/" + mac + "/"+dia + mes + ano + "/" + nomeArquivo;

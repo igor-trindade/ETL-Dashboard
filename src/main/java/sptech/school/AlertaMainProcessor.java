@@ -15,69 +15,67 @@ public class AlertaMainProcessor {
     private static final Integer ID_EMPRESA = Integer.valueOf(DOTENV.get("ID_EMPRESA", "1"));
     private static final String NOME_ARQUIVO_DADOS = "trusted.csv";
 
-
-
     public static void main(String[] args) {
 
         String modoExecucao = DOTENV.get("MODO_EXECUCAO", "SIMULADO");
         List<Alerta> listaAlertas = new ArrayList<>();
-
         System.out.println("Iniciando Processador de Alertas em modo: " + modoExecucao.toUpperCase());
 
         try (Connection conn = ConexaoBd.getConnection()) {
 
             if (modoExecucao.equalsIgnoreCase("AWS")) {
 
-                System.out.println("Modo AWS: Buscando Mainframes no BD para a Empresa " + ID_EMPRESA + "...");
+                String idEmpresaStr = String.valueOf(ID_EMPRESA);
+                System.out.println("Modo AWS: Listando diretórios no S3 para a Empresa " + idEmpresaStr + "...");
+                List<String> diretoriosMac = ConexaoAws.listarDiretorios(idEmpresaStr); // busca diretórios no S3
 
-                // busca todos os MACs da empresa no BD
-                List<String> macs = ConexaoBd.buscarMac(conn, ID_EMPRESA.toString());
 
-                if (macs.isEmpty()) {
-                    System.out.println("Nenhum mainframe encontrado no BD para a Empresa " + ID_EMPRESA);
+                if (diretoriosMac.isEmpty()) {
+                    System.out.println("Nenhum diretório/mainframe encontrado no S3 para a Empresa " + ID_EMPRESA);
                     return;
                 }
 
-                // itera sobre cada MAC para ler o arquivo no S3
-                for (String mac : macs) {
-                    System.out.println("Lendo dados do S3 para o MAC: " + mac);
-                    List<String[]> dadosAtuais = ConexaoAws.lerArquivoCsvDoTrusted(mac, ID_EMPRESA, NOME_ARQUIVO_DADOS);
 
-                    // processa os dados lidos
-                    GeradorAlertas.processarDadosParaAlertas(conn, dadosAtuais, listaAlertas);
+                // itera sobre cada diretório encontrado no bucket
+                for (String dir : diretoriosMac) {
+
+                    String mac = dir.replace(idEmpresaStr + "/", "").replace("/", "");
+                    System.out.println("Processando MAC encontrado no S3: " + mac);
+                    List<String[]> dadosAtuais = ConexaoAws.lerArquivoCsvDoTrusted(mac, idEmpresaStr, NOME_ARQUIVO_DADOS); // lê o CSV do dia atual para esse MAC
+
+                    // só processa se houver dados
+                    if (dadosAtuais != null && !dadosAtuais.isEmpty()) {
+                        GeradorAlertas.processarDadosParaAlertas(conn, dadosAtuais, listaAlertas);
+                    } else {
+                        System.out.println("Nenhum dado encontrado hoje para o MAC: " + mac);
+                    }
                 }
 
-            } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
 
-                // leitura local do trusted.csv
-                System.out.println("Modo SIMULADO: Lendo arquivo de dados localmente (" + NOME_ARQUIVO_DADOS + ")...");
+
+            } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
+                System.out.println("Modo SIMULADO: Lendo arquivo local (" + NOME_ARQUIVO_DADOS + ")...");
                 List<String[]> dadosMainframe = GeradorAlertas.lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
                 GeradorAlertas.processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
-
-            } else {
-                System.err.println("MODO_EXECUCAO inválido no .env. Use 'AWS' ou 'SIMULADO'.");
-                return;
             }
 
-            // json
-            if (!listaAlertas.isEmpty()) {
 
+
+            // geração e envio do JSON de Alertas
+            if (!listaAlertas.isEmpty()) {
                 String jsonAlertas = GeradorAlertas.montarJsonAlertas(listaAlertas);
-                String nomeArquivoAlertas = "alertas_empresa_" + ID_EMPRESA + ".json";
+                String nomeArquivoAlertas = "alertas_" + ID_EMPRESA + "_" + System.currentTimeMillis() + ".json";
 
                 if (modoExecucao.equalsIgnoreCase("AWS")) {
-
-                    // salva json no S3
+                    // envia pro client
                     ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, jsonAlertas);
-                    System.out.println("JSON de Alertas enviado ao S3 CLIENT: " + nomeArquivoAlertas);
-
-
-                } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
+                } else {
                     salvarJsonLocal(nomeArquivoAlertas, jsonAlertas);
                 }
             } else {
-                System.out.println("Nenhum alerta gerado.");
+                System.out.println("Processamento finalizado. Nenhum alerta foi gerado.");
             }
+
 
         } catch (SQLException e) {
             System.err.println("Erro de conexão/SQL: " + e.getMessage());
@@ -87,7 +85,8 @@ public class AlertaMainProcessor {
         }
     }
 
-    // teste json local
+
+
     private static void salvarJsonLocal(String nomeArquivo, String jsonContent) {
         try (FileWriter writer = new FileWriter(nomeArquivo)) {
             writer.write(jsonContent);
