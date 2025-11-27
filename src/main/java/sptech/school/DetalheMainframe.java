@@ -26,12 +26,11 @@ public class DetalheMainframe {
             System.err.println("Erro ao conectar no banco: " + e.getMessage());
         }
 
-        // ====== ALTERAÇÃO MÍNIMA: array final de empresas ======
+        //  array de empresas
         List<Map<String, Object>> empresasJson = new ArrayList<>();
 
         for(String empresa : idEmpresas){
 
-            // ====== ALTERAÇÃO MÍNIMA: array da empresa ======
             List<Map<String, Object>> mainframesJson = new ArrayList<>();
 
             List<String> dirs = ConexaoAws.listarDiretorios(empresa);
@@ -103,7 +102,7 @@ public class DetalheMainframe {
                 mainframesJson.add(mainframe);
             }
 
-            // ====== ALTERAÇÃO MÍNIMA: empacotar dentro do objeto da empresa ======
+            // vinculando mainframe á empresa
             Map<String, Object> empresaJson = new HashMap<>();
             empresaJson.put("empresa", empresa);
             empresaJson.put("mainframes", mainframesJson);
@@ -111,7 +110,7 @@ public class DetalheMainframe {
             empresasJson.add(empresaJson);
         }
 
-        // ====== ALTERAÇÃO MÍNIMA: gerar JSON final fora do for ======
+        // gerar JSON
         String jsonFinal = gson.toJson(empresasJson);
 
         System.out.println(jsonFinal);
