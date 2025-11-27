@@ -113,14 +113,13 @@ public class GeradorAlertas {
                     processarLinhaMainframe(conn, listaAlertas, linha, limitesMainframe);
                 }
             } catch (SQLException e) {
-                System.err.println("❌ Erro de SQL ao buscar limites para " + macAdress + ": " + e.getMessage());
+                System.err.println(" Erro de SQL ao buscar limites para " + macAdress + ": " + e.getMessage());
             }
         }
     }
 
     // Lógica que verifica a linha, define a gravidade, insere no BD e adiciona à lista. (Mantido inalterado)
-    private static void processarLinhaMainframe(Connection conn, List<Alerta> listaAlertas, String[] linha,
-                                                Map<String, Double[]> limitesMainframe) {
+    private static void processarLinhaMainframe(Connection conn, List<Alerta> listaAlertas, String[] linha, Map<String, MetricaInfo> limitesMainframe) {
 
         if (linha.length < INDICE_DISCO + 1) return;
 
@@ -134,28 +133,28 @@ public class GeradorAlertas {
         mapaIndices.put("Disco Rígido", INDICE_DISCO);
 
         for (Map.Entry<String, Integer> entry : mapaIndices.entrySet()) {
-            String nomeComponenteBd = entry.getKey();
+            String componente = entry.getKey();
             int indiceCsv = entry.getValue();
 
-            if (limitesMainframe.containsKey(nomeComponenteBd)) {
+            if (!limitesMainframe.containsKey(componente)) continue;
 
-                Double limiteMin = limitesMainframe.get(nomeComponenteBd)[0];
-                Double limiteMax = limitesMainframe.get(nomeComponenteBd)[1];
+            MetricaInfo mi = limitesMainframe.get(componente);
 
-                try {
-                    Double valorColetado = Double.parseDouble(linha[indiceCsv].replace(",", "."));
-                    String gravidade = definirGravidade(valorColetado, limiteMin, limiteMax);
+            try {
+                Double valor = Double.parseDouble(linha[indiceCsv].replace(",", "."));
 
-                    if (gravidade != null && !gravidade.equals("Normal")) {
-                        listaAlertas.add(new Alerta(dtHora, valorColetado, nomeComponenteBd, gravidade, macAdress, identificacaoMainframe));
-                    }
+                ConexaoBd.inserirAlerta(conn, dtHora, valor, mi.getIdMetrica());
 
-                } catch (NumberFormatException e) {
-                    System.err.println("Erro ao converter valor numérico na linha: " + String.join(";", linha));
-                }
+                listaAlertas.add(
+                        new Alerta(dtHora, valor, componente, macAdress, identificacaoMainframe)
+                );
+
+            } catch (Exception e) {
+                System.err.println("Erro ao converter valor numérico: " + String.join(";", linha));
             }
         }
     }
+
 
     // Lógica de gravidade (Mantido inalterado)
     private static String definirGravidade(Double valor, Double min, Double max) {

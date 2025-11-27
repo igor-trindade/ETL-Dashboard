@@ -78,14 +78,13 @@ public class AlertaMainProcessor {
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Erro de conexão/SQL: " + e.getMessage());
+            System.err.println(" Erro de conexão/SQL: " + e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
-            System.err.println("❌ Erro de I/O na leitura local: " + e.getMessage());
+            System.err.println(" Erro de I/O na leitura local: " + e.getMessage());
         }
     }
 
-    // NOVO MÉTODO: Salva o JSON localmente (SIMULADO)
     private static void salvarJsonLocal(String nomeArquivo, String jsonContent) {
         try (FileWriter writer = new FileWriter(nomeArquivo)) {
             writer.write(jsonContent);
