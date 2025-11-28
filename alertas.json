@@ -1,37 +1,5 @@
 [
   {
-    "dtHora": "2025-11-22 13:25:00",
-    "valorColetado": 99.86,
-    "componente": "Processador",
-    "gravidade": "Muito Urgente",
-    "macAdress": "269058910482378",
-    "identificacaoMainframe": "Aoki"
-  },
-  {
-    "dtHora": "2025-11-22 13:25:00",
-    "valorColetado": 99.99,
-    "componente": "Memória RAM",
-    "gravidade": "Muito Urgente",
-    "macAdress": "269058910482378",
-    "identificacaoMainframe": "Aoki"
-  },
-  {
-    "dtHora": "2025-11-22 13:30:00",
-    "valorColetado": 100.00,
-    "componente": "Processador",
-    "gravidade": "Emergencia",
-    "macAdress": "269058910482378",
-    "identificacaoMainframe": "Aoki"
-  },
-  {
-    "dtHora": "2025-11-22 13:30:00",
-    "valorColetado": 99.99,
-    "componente": "Memória RAM",
-    "gravidade": "Muito Urgente",
-    "macAdress": "269058910482378",
-    "identificacaoMainframe": "Aoki"
-  },
-  {
     "dtHora": "2025-11-21 12:45:00",
     "valorColetado": 0.00,
     "componente": "Processador",
@@ -332,6 +300,38 @@
     "valorColetado": 91.60,
     "componente": "Memória RAM",
     "gravidade": "Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 13:25:00",
+    "valorColetado": 99.86,
+    "componente": "Processador",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 13:25:00",
+    "valorColetado": 99.99,
+    "componente": "Memória RAM",
+    "gravidade": "Muito Urgente",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 13:30:00",
+    "valorColetado": 100.00,
+    "componente": "Processador",
+    "gravidade": "Emergencia",
+    "macAdress": "166250251803552",
+    "identificacaoMainframe": "Hideo"
+  },
+  {
+    "dtHora": "2025-11-22 13:30:00",
+    "valorColetado": 99.99,
+    "componente": "Memória RAM",
+    "gravidade": "Muito Urgente",
     "macAdress": "166250251803552",
     "identificacaoMainframe": "Hideo"
   }
