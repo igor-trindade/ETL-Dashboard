@@ -75,7 +75,34 @@ public class ConexaoBd {
         }
         return lista;
     }
-   // busca todos mainframes
+
+    public static List<String> buscarMinMax(Connection conn, String macAdress) throws SQLException {
+        String sql = """
+                        select min,max,c.nome from empresa e\s
+                        join setor s on e.id = s.fkEmpresa
+                        join mainframe m on s.id = m.fkSetor
+                        join metrica me on m.id = me.fkMainframe
+                        join componente c on me.fkComponente = c.id
+                        join tipo t on me.fkTipo = t.id
+                        where macAdress = ?;
+        """;
+
+        List lista = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, macAdress);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                lista.add(rs.getString("min"));
+                lista.add(rs.getString("max"));
+                lista.add(rs.getString("nome"));
+
+            }
+        }
+        return lista;
+    }
+    // busca todos mainframes
 
     public static List<Object> buscarMainFrame(Connection conn, Integer id) throws SQLException {
         String sql = """

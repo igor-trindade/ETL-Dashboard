@@ -1,6 +1,9 @@
 package sptech.school;
 
 import io.github.cdimascio.dotenv.Dotenv;
+
+import java.lang.invoke.CallSite;
+import java.sql.ClientInfoStatus;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -40,6 +43,7 @@ public class DetalheMainframe {
                 String mac = dir.replace("1/", "").replace("/", "");
 
                 List<String[]> linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac, empresa, "trusted.csv");
+
                 if (linhas.isEmpty()) continue;
 
                 Integer ultimo = linhas.size() - 1;
@@ -47,7 +51,7 @@ public class DetalheMainframe {
                 ArrayList<Double> cpu = new ArrayList<>();
                 ArrayList<Double> ram = new ArrayList<>();
                 ArrayList<Double> disk = new ArrayList<>();
-
+                ArrayList<String> dthr = new ArrayList<>();
                 String macAdress = linhas.get(ultimo)[0].replace(",", ".");
                 Double throughput = Double.valueOf(linhas.get(ultimo)[6].replace(",", "."));
                 Double iops = Double.valueOf(linhas.get(ultimo)[7].replace(",", "."));
@@ -58,6 +62,7 @@ public class DetalheMainframe {
                     cpu.add(Double.valueOf(linhas.get(ultimoDado)[3].replace(",", ".")));
                     ram.add(Double.valueOf(linhas.get(ultimoDado)[4].replace(",", ".")));
                     disk.add(Double.valueOf(linhas.get(ultimoDado)[5].replace(",", ".")));
+                    dthr.add(linhas.get(ultimoDado)[1]);
                     ultimoDado--;
                 }
 
@@ -66,12 +71,12 @@ public class DetalheMainframe {
                 String hhmm = "";
                 String fabricante = "";
                 String modelo = "";
-
+                List<String> metricas = new ArrayList<>();
                 try (Connection conn = DriverManager.getConnection(
                         Dotenv.load().get("DB_URL"),Dotenv.load().get("DB_USER"),Dotenv.load().get("DB_PASSWORD"))) {
 
                     List dadosDb = ConexaoBd.buscarMetricas(conn, macAdress);
-
+                    metricas = ConexaoBd.buscarMinMax(conn,empresa);
                     if (!dadosDb.isEmpty()) {
                         minUltimoAlerta = dadosDb.get(0).toString();
                         incidentes = dadosDb.get(1).toString();
@@ -88,7 +93,7 @@ public class DetalheMainframe {
                 }
 
                 Map<String, Object> mainframe = new HashMap<>();
-                mainframe.put("nome", modelo);
+                mainframe.put("modelo", modelo);
                 mainframe.put("cpu", cpu);
                 mainframe.put("ram", ram);
                 mainframe.put("disk", disk);
@@ -98,6 +103,8 @@ public class DetalheMainframe {
                 mainframe.put("eventos", Integer.valueOf(incidentes));
                 mainframe.put("iops", iops);
                 mainframe.put("latencia", latencia);
+                mainframe.put("metricas",metricas);
+                mainframe.put("tempoAlerta",hhmm);
 
                 mainframesJson.add(mainframe);
             }
