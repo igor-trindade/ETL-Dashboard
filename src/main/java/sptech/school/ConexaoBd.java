@@ -109,7 +109,7 @@ public class ConexaoBd {
             select m.macAdress from empresa e\s
                     join setor s  on e.id = s.fkempresa
                     join mainframe m on s.id = m.fksetor
-                    where e.id = ? ;
+                    where e.id = ? order by id ;
                 
         """;
 
