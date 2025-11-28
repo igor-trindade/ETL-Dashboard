@@ -2,6 +2,7 @@
   {
     "mainframes": [
       {
+        "tempoAlerta": "167h 50m",
         "disk": [
           64.0,
           64.0,
@@ -19,9 +20,20 @@
           58.98
         ],
         "Fabricante": "IBM",
-        "nome": "Z15",
         "eventos": 0,
         "throughput": 76.02,
+        "modelo": "Z15",
+        "metricas": [
+          "5.00",
+          "90.00",
+          "Processador",
+          "5.00",
+          "90.00",
+          "Memória RAM",
+          "5.00",
+          "95.00",
+          "Disco Rígido"
+        ],
         "mac": "269058769682378",
         "ram": [
           89.3,

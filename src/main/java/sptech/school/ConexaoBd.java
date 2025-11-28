@@ -93,7 +93,7 @@ public class ConexaoBd {
             stmt.setString(1, macAdress);
             ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
+            while (rs.next()) {
                 lista.add(rs.getString("min"));
                 lista.add(rs.getString("max"));
                 lista.add(rs.getString("nome"));
