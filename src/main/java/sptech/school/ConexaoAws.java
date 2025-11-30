@@ -118,14 +118,37 @@ public class ConexaoAws {
             return linhas;
    }
 
-   public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
-        String sql = """
-            SELECT m.macAdress 
-            FROM empresa e
-            JOIN setor s ON s.fkempresa = e.id
-            JOIN mainframe m ON m.fksetor = s.id
-            WHERE e.id = ?;
-        """;
+    public static List<String> listarDiretorios() {
+        List<String> diretorios = new ArrayList<>();
+        String bucket = pegarBucket("trusted"); // seu bucket "trusted"
+
+        try {
+            ListObjectsV2Request listReq = ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix("1/")
+                    .delimiter("/")
+                    .build();
+
+            ListObjectsV2Response res = s3.listObjectsV2(listReq);
+
+
+            res.commonPrefixes().forEach(cp -> diretorios.add(cp.prefix()));
+
+            System.out.println("Diretórios encontrados dentro de 1/: " + diretorios);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao listar diretórios: " + e.getMessage());
+        }
+
+        return diretorios;
+    }
+
+    public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
+String sql = "SELECT m.macAdress\n" +
+"            FROM empresa e\n" +
+"            JOIN setor s ON s.fkempresa = e.id\n" +
+"            JOIN mainframe m ON m.fksetor = s.id\n" +
+"            WHERE e.id = ?;";
 
         List<String> lista = new ArrayList<>();
 

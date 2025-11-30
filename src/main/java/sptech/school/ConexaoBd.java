@@ -33,7 +33,7 @@ public class ConexaoBd {
                 Dotenv.load().get("DB_USER"),
                 Dotenv.load().get("DB_PASSWORD"))) {
 
-            List dadosDb = ConexaoBd.buscarMainFrame(conn,1);
+            List dadosDb = ConexaoBd.buscarMainFrame(conn, 1);
 
 
         } catch (SQLException e) {
@@ -43,22 +43,20 @@ public class ConexaoBd {
 
     // Busca métricas configuradas para um mainframe
     public static List<Object> buscarMetricas(Connection conn, String macAdress) throws SQLException {
-        String sql = """
-                SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,
-                                    (SELECT COUNT(*)
-                                        FROM alerta al2
-                                        JOIN metrica mt2 ON mt2.id = al2.fkMetrica
-                                        JOIN mainframe m2 ON m2.id = mt2.fkMainframe
-                                        WHERE m2.macAdress = m.macAdress
-                                          AND TIMESTAMPDIFF(HOUR, al2.dt_hora, NOW()) < 24
-                                    ) AS incidentes_ultimas_24, m.fabricante, m.modelo
-                                FROM mainframe AS m
-                                JOIN metrica AS mt ON m.id = mt.fkMainframe
-                                JOIN alerta AS al ON mt.id = al.fkMetrica
-                                WHERE m.macAdress = ?
-                                ORDER BY al.dt_hora DESC
-                                LIMIT 1;
-        """;
+String sql = "SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,\n" +
+"                   (SELECT COUNT(*)\n" +
+"                    FROM alerta al2\n" +
+"                    JOIN metrica mt2 ON mt2.id = al2.fkMetrica\n" +
+"                    JOIN mainframe m2 ON m2.id = mt2.fkMainframe\n" +
+"                    WHERE m2.macAdress = m.macAdress\n" +
+"                      AND TIMESTAMPDIFF(HOUR, al2.dt_hora, NOW()) < 24\n" +
+"                   ) AS incidentes_ultimas_24, m.fabricante, m.modelo\n" +
+"            FROM mainframe AS m\n" +
+"            JOIN metrica AS mt ON m.id = mt.fkMainframe\n" +
+"            JOIN alerta AS al ON mt.id = al.fkMetrica\n" +
+"            WHERE m.macAdress = ?\n" +
+"            ORDER BY al.dt_hora DESC\n" +
+"            LIMIT 1;";
 
         List lista = new ArrayList<>();
 
@@ -75,43 +73,13 @@ public class ConexaoBd {
         }
         return lista;
     }
-
-    public static List<String> buscarMinMax(Connection conn, String macAdress) throws SQLException {
-        String sql = """
-                        select min,max,c.nome from empresa e\s
-                        join setor s on e.id = s.fkEmpresa
-                        join mainframe m on s.id = m.fkSetor
-                        join metrica me on m.id = me.fkMainframe
-                        join componente c on me.fkComponente = c.id
-                        join tipo t on me.fkTipo = t.id
-                        where macAdress = ?;
-        """;
-
-        List lista = new ArrayList<>();
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, macAdress);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                lista.add(rs.getString("min"));
-                lista.add(rs.getString("max"));
-                lista.add(rs.getString("nome"));
-
-            }
-        }
-        return lista;
-    }
     // busca todos mainframes
 
     public static List<Object> buscarMainFrame(Connection conn, Integer id) throws SQLException {
-        String sql = """
-            select m.macAdress from empresa e\s
-                    join setor s  on e.id = s.fkempresa
-                    join mainframe m on s.id = m.fksetor
-                    where e.id = ? order by id ;
-                
-        """;
+String sql = "SELECT m.macAdress FROM empresa e\n" +
+"            JOIN setor s ON e.id = s.fkempresa\n" +
+"            JOIN mainframe m ON s.id = m.fksetor\n" +
+"            WHERE e.id = ?;";
 
         List lista = new ArrayList<>();
 
@@ -132,13 +100,11 @@ public class ConexaoBd {
 // Dentro da classe ConexaoAws
 
     public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
-        String sql = """
-            SELECT m.macAdress 
-            FROM empresa e
-            JOIN setor s ON s.fkempresa = e.id
-            JOIN mainframe m ON m.fksetor = s.id
-            WHERE e.id = ?;
-        """;
+String sql = "SELECT m.macAdress\n" +
+"            FROM empresa e\n" +
+"            JOIN setor s ON s.fkempresa = e.id\n" +
+"            JOIN mainframe m ON m.fksetor = s.id\n" +
+"            WHERE e.id = ?;";
 
         List<String> lista = new ArrayList<>();
 
@@ -154,12 +120,9 @@ public class ConexaoBd {
         return lista;
     }
 
-    // ------------------------------------------------------------------------------------------------------------------
-    // ETL ALERTAS
-    // ------------------------------------------------------------------------------------------------------------------
-
     // Mapeamento de gravidade
     private static final Map<String, Integer> MAP_GRAVIDADE_FK = new HashMap<>();
+
     static {
         MAP_GRAVIDADE_FK.put("Emergencia", 1);
         MAP_GRAVIDADE_FK.put("Emergência", 1); // caso venha com acento
@@ -177,32 +140,47 @@ public class ConexaoBd {
     }
 
     // Busca os limites MIN e MAX configurados na tabela metrica
-    public static Map<String, Double[]> buscarLimitesMetricas(Connection conn, String macAdress) throws SQLException {
-        String sql = """
-            SELECT c.nome, m.min, m.max
-            FROM metrica m
-            JOIN componente c ON m.fkComponente = c.id
-            JOIN mainframe mf ON m.fkMainframe = mf.id
-            WHERE mf.macAdress = ? AND m.fkTipo = 1 
-        """;//  fkTipo = 1 refere-se a 'Uso'
+    public static Map<String, MetricaInfo> buscarLimitesMetricas(Connection conn, String macAdress)
+            throws SQLException {
 
-        Map<String, Double[]> limites = new HashMap<>();
+String sql = "SELECT c.nome AS componente, m.id AS idMetrica, m.min, m.max\n" +
+"            FROM metrica m\n" +
+"            JOIN componente c ON m.fkComponente = c.id\n" +
+"            JOIN mainframe mf ON m.fkMainframe = mf.id\n" +
+"            WHERE mf.macAdress = ?;";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, macAdress);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    String nomeComponente = rs.getString("nome");
-                    Double min = rs.getDouble("min");
-                    Double max = rs.getDouble("max");
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, macAdress);
 
-                    limites.put(nomeComponente, new Double[]{min, max});
-                }
-            }
+        ResultSet rs = ps.executeQuery();
+
+        Map<String, MetricaInfo> limites = new HashMap<>();
+
+        while (rs.next()) {
+            String componente = rs.getString("componente");
+            int idMetrica = rs.getInt("idMetrica");
+            double min = rs.getDouble("min");
+            double max = rs.getDouble("max");
+
+            limites.put(componente, new MetricaInfo(idMetrica, min, max));
         }
+
         return limites;
     }
 
+    public static void inserirAlerta(Connection conn, String dtHora, Double valor, int fkMetrica)
+            throws SQLException {
+
+String sql = "INSERT INTO alerta (dt_hora, valor_coletado, fkMetrica, fkStatus)\n" +
+"                    VALUES (?, ?, ?, 1);";
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, dtHora);
+        ps.setDouble(2, valor);
+        ps.setInt(3, fkMetrica);
+
+        ps.executeUpdate();
+    }
 
     public static List<String> listaEmpresas(Connection conn) throws SQLException {
         String sql = "SELECT id FROM empresa;";
@@ -221,6 +199,34 @@ public class ConexaoBd {
 
         return lista;
     }
+
+
+    public static List<String> buscarMinMax(Connection conn, String macAdress) throws SQLException {
+        String sql =
+                "select min,max,c.nome from empresa e " +
+                        "join setor s on e.id = s.fkEmpresa " +
+                        "join mainframe m on s.id = m.fkSetor " +
+                        "join metrica me on m.id = me.fkMainframe " +
+                        "join componente c on me.fkComponente = c.id " +
+                        "join tipo t on me.fkTipo = t.id " +
+                        "where macAdress = ?;";
+
+        List lista = new ArrayList<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, macAdress);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                lista.add(rs.getString("min"));
+                lista.add(rs.getString("max"));
+                lista.add(rs.getString("nome"));
+
+            }
+        }
+        return lista;
+    }
+
 }
 
 

@@ -1,0 +1,9 @@
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/Alerta.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/AlertaMainProcessor.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/ConexaoAws.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/ConexaoBd.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/DashboardDataProcessor.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/DetalheMainframe.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/GeradorAlertas.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/MetricaInfo.java
+/home/ubuntu/ETL-Dashboard/ETL-Dashboard/src/main/java/sptech/school/TrataCsv.java

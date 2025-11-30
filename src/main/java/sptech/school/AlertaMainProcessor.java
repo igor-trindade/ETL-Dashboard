@@ -92,10 +92,10 @@ public class AlertaMainProcessor {
             }
 
         } catch (SQLException e) {
-            System.err.println("Erro de conexão/SQL: " + e.getMessage());
+            System.err.println(" Erro de conexão/SQL: " + e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
-            System.err.println("Erro de I/O na leitura local: " + e.getMessage());
+            System.err.println(" Erro de I/O na leitura local: " + e.getMessage());
         }
     }
 

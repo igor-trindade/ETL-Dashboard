@@ -1,0 +1,9 @@
+sptech/school/ConexaoAws.class
+sptech/school/ConexaoBd.class
+sptech/school/MetricaInfo.class
+sptech/school/DashboardDataProcessor.class
+sptech/school/TrataCsv.class
+sptech/school/DetalheMainframe.class
+sptech/school/GeradorAlertas.class
+sptech/school/Alerta.class
+sptech/school/AlertaMainProcessor.class

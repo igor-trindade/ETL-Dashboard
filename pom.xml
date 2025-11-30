@@ -9,16 +9,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <dependency>
-        <groupId>com.opencsv</groupId>
-        <artifactId>opencsv</artifactId>
-        <version>5.9</version>
-    </dependency>
+    
 
     <repositories>
         <repository>
@@ -40,6 +36,11 @@
     </dependencyManagement>
 
     <dependencies>
+                <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>5.9</version>
+        </dependency>
         <!-- AWS SDK v2 - S3 -->
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
