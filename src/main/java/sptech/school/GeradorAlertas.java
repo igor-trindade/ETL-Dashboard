@@ -42,13 +42,8 @@ public class GeradorAlertas {
             String macAdress = entry.getKey();
 
             try {
-<<<<<<< HEAD
                 // Busca os limites no BD
                 Map<String, MetricaInfo> limitesMainframe = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
-=======
-                // busca os limites no BD
-                Map<String, Double[]> limitesMainframe = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
->>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 
                 if (limitesMainframe.isEmpty()) {
                     // System.out.println("Limites não encontrados no BD para o MAC: " + macAdress);
@@ -60,23 +55,13 @@ public class GeradorAlertas {
                     processarLinhaMainframe(conn, listaAlertas, linha, limitesMainframe);
                 }
             } catch (SQLException e) {
-<<<<<<< HEAD
                 System.err.println(" Erro de SQL ao buscar limites para " + macAdress + ": " + e.getMessage());
-=======
-                System.err.println("Erro de SQL ao buscar limites para " + macAdress + ": " + e.getMessage());
->>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
             }
         }
     }
 
-<<<<<<< HEAD
     // Lógica que verifica a linha, define a gravidade, insere no BD e adiciona à lista. (Mantido inalterado)
     private static void processarLinhaMainframe(Connection conn, List<Alerta> listaAlertas, String[] linha, Map<String, MetricaInfo> limitesMainframe) {
-=======
-    // verifica a linha
-    private static void processarLinhaMainframe(Connection conn, List<Alerta> listaAlertas, String[] linha,
-                                                Map<String, Double[]> limitesMainframe) {
->>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 
         if (linha.length < INDICE_DISCO + 1) return;
 
@@ -112,12 +97,8 @@ public class GeradorAlertas {
         }
     }
 
-<<<<<<< HEAD
 
     // Lógica de gravidade (Mantido inalterado)
-=======
-    // define a gravidade
->>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
     private static String definirGravidade(Double valor, Double min, Double max) {
         Double limiteMuitoUrgenteMax = max + ((LIMITE_MAXIMO_ALERTA - max) / 2);
         Double limiteMuitoUrgenteMin = min / 2;

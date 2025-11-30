@@ -118,7 +118,6 @@ public class ConexaoAws {
             return linhas;
    }
 
-<<<<<<< HEAD
     public static List<String> listarDiretorios() {
         List<String> diretorios = new ArrayList<>();
         String bucket = pegarBucket("trusted"); // seu bucket "trusted"
@@ -150,16 +149,6 @@ String sql = "SELECT m.macAdress\n" +
 "            JOIN setor s ON s.fkempresa = e.id\n" +
 "            JOIN mainframe m ON m.fksetor = s.id\n" +
 "            WHERE e.id = ?;";
-=======
-   public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
-        String sql = """
-            SELECT m.macAdress 
-            FROM empresa e
-            JOIN setor s ON s.fkempresa = e.id
-            JOIN mainframe m ON m.fksetor = s.id
-            WHERE e.id = ?;
-        """;
->>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 
         List<String> lista = new ArrayList<>();
 

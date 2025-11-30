@@ -73,7 +73,6 @@ String sql = "SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_aler
         }
         return lista;
     }
-<<<<<<< HEAD
     // busca todos mainframes
 
     public static List<Object> buscarMainFrame(Connection conn, Integer id) throws SQLException {
@@ -81,45 +80,6 @@ String sql = "SELECT m.macAdress FROM empresa e\n" +
 "            JOIN setor s ON e.id = s.fkempresa\n" +
 "            JOIN mainframe m ON s.id = m.fksetor\n" +
 "            WHERE e.id = ?;";
-=======
-
-    public static List<String> buscarMinMax(Connection conn, String macAdress) throws SQLException {
-        String sql = """
-                        select min,max,c.nome from empresa e\s
-                        join setor s on e.id = s.fkEmpresa
-                        join mainframe m on s.id = m.fkSetor
-                        join metrica me on m.id = me.fkMainframe
-                        join componente c on me.fkComponente = c.id
-                        join tipo t on me.fkTipo = t.id
-                        where macAdress = ?;
-        """;
-
-        List lista = new ArrayList<>();
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, macAdress);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                lista.add(rs.getString("min"));
-                lista.add(rs.getString("max"));
-                lista.add(rs.getString("nome"));
-
-            }
-        }
-        return lista;
-    }
-    // busca todos mainframes
-
-    public static List<Object> buscarMainFrame(Connection conn, Integer id) throws SQLException {
-        String sql = """
-            select m.macAdress from empresa e\s
-                    join setor s  on e.id = s.fkempresa
-                    join mainframe m on s.id = m.fksetor
-                    where e.id = ? order by id ;
-                
-        """;
->>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 
         List lista = new ArrayList<>();
 
@@ -208,7 +168,6 @@ String sql = "SELECT c.nome AS componente, m.id AS idMetrica, m.min, m.max\n" +
         return limites;
     }
 
-<<<<<<< HEAD
     public static void inserirAlerta(Connection conn, String dtHora, Double valor, int fkMetrica)
             throws SQLException {
 
@@ -223,26 +182,6 @@ String sql = "INSERT INTO alerta (dt_hora, valor_coletado, fkMetrica, fkStatus)\
         ps.executeUpdate();
     }
 
-=======
-
-    public static List<String> listaEmpresas(Connection conn) throws SQLException {
-        String sql = "SELECT id FROM empresa;";
-
-        List<String> lista = new ArrayList<>();
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                lista.add(rs.getString("id"));
-            }
-        }catch (SQLException e) {
-            System.err.println("erro em listar empresa: " + e.getMessage());
-        }
-
-        return lista;
-    }
->>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 }
 
 
