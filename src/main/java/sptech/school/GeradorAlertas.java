@@ -101,7 +101,7 @@ public class GeradorAlertas {
 
             try {
                 // Busca os limites no BD
-                Map<String, Double[]> limitesMainframe = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
+                Map<String, MetricaInfo> limitesMainframe = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
 
                 if (limitesMainframe.isEmpty()) {
                     System.out.println("⚠️ Limites não encontrados no BD para o MAC: " + macAdress);

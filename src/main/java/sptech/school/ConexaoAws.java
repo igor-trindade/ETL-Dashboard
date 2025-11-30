@@ -119,13 +119,11 @@ public class ConexaoAws {
     }
 
     public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
-        String sql = """
-            SELECT m.macAdress 
-            FROM empresa e
-            JOIN setor s ON s.fkempresa = e.id
-            JOIN mainframe m ON m.fksetor = s.id
-            WHERE e.id = ?;
-        """;
+String sql = "SELECT m.macAdress\n" +
+"            FROM empresa e\n" +
+"            JOIN setor s ON s.fkempresa = e.id\n" +
+"            JOIN mainframe m ON m.fksetor = s.id\n" +
+"            WHERE e.id = ?;";
 
         List<String> lista = new ArrayList<>();
 

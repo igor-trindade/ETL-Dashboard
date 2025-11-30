@@ -43,22 +43,20 @@ public class ConexaoBd {
 
     // Busca métricas configuradas para um mainframe
     public static List<Object> buscarMetricas(Connection conn, String macAdress) throws SQLException {
-        String sql = """
-                        SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,
-                                            (SELECT COUNT(*)
-                                                FROM alerta al2
-                                                JOIN metrica mt2 ON mt2.id = al2.fkMetrica
-                                                JOIN mainframe m2 ON m2.id = mt2.fkMainframe
-                                                WHERE m2.macAdress = m.macAdress
-                                                  AND TIMESTAMPDIFF(HOUR, al2.dt_hora, NOW()) < 24
-                                            ) AS incidentes_ultimas_24, m.fabricante, m.modelo
-                                        FROM mainframe AS m
-                                        JOIN metrica AS mt ON m.id = mt.fkMainframe
-                                        JOIN alerta AS al ON mt.id = al.fkMetrica
-                                        WHERE m.macAdress = ?
-                                        ORDER BY al.dt_hora DESC
-                                        LIMIT 1;
-                """;
+String sql = "SELECT TIMESTAMPDIFF(MINUTE, al.dt_hora, NOW()) AS dif_ultimo_alerta,\n" +
+"                   (SELECT COUNT(*)\n" +
+"                    FROM alerta al2\n" +
+"                    JOIN metrica mt2 ON mt2.id = al2.fkMetrica\n" +
+"                    JOIN mainframe m2 ON m2.id = mt2.fkMainframe\n" +
+"                    WHERE m2.macAdress = m.macAdress\n" +
+"                      AND TIMESTAMPDIFF(HOUR, al2.dt_hora, NOW()) < 24\n" +
+"                   ) AS incidentes_ultimas_24, m.fabricante, m.modelo\n" +
+"            FROM mainframe AS m\n" +
+"            JOIN metrica AS mt ON m.id = mt.fkMainframe\n" +
+"            JOIN alerta AS al ON mt.id = al.fkMetrica\n" +
+"            WHERE m.macAdress = ?\n" +
+"            ORDER BY al.dt_hora DESC\n" +
+"            LIMIT 1;";
 
         List lista = new ArrayList<>();
 
@@ -78,13 +76,10 @@ public class ConexaoBd {
     // busca todos mainframes
 
     public static List<Object> buscarMainFrame(Connection conn, Integer id) throws SQLException {
-        String sql = """
-                    select m.macAdress from empresa e\s
-                            join setor s  on e.id = s.fkempresa
-                            join mainframe m on s.id = m.fksetor
-                            where e.id = ? ;
-                
-                """;
+String sql = "SELECT m.macAdress FROM empresa e\n" +
+"            JOIN setor s ON e.id = s.fkempresa\n" +
+"            JOIN mainframe m ON s.id = m.fksetor\n" +
+"            WHERE e.id = ?;";
 
         List lista = new ArrayList<>();
 
@@ -105,13 +100,11 @@ public class ConexaoBd {
 // Dentro da classe ConexaoAws
 
     public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
-        String sql = """
-                    SELECT m.macAdress 
-                    FROM empresa e
-                    JOIN setor s ON s.fkempresa = e.id
-                    JOIN mainframe m ON m.fksetor = s.id
-                    WHERE e.id = ?;
-                """;
+String sql = "SELECT m.macAdress\n" +
+"            FROM empresa e\n" +
+"            JOIN setor s ON s.fkempresa = e.id\n" +
+"            JOIN mainframe m ON m.fksetor = s.id\n" +
+"            WHERE e.id = ?;";
 
         List<String> lista = new ArrayList<>();
 
@@ -150,12 +143,11 @@ public class ConexaoBd {
     public static Map<String, MetricaInfo> buscarLimitesMetricas(Connection conn, String macAdress)
             throws SQLException {
 
-        String sql = """
-                SELECT c.nome AS componente, m.id AS idMetrica, m.min, m.max
-                FROM metrica m
-                JOIN componente c ON m.fkComponente = c.id
-                JOIN mainframe mf ON m.fkMainframe = mf.id
-                WHERE mf.macAdress = ?""";
+String sql = "SELECT c.nome AS componente, m.id AS idMetrica, m.min, m.max\n" +
+"            FROM metrica m\n" +
+"            JOIN componente c ON m.fkComponente = c.id\n" +
+"            JOIN mainframe mf ON m.fkMainframe = mf.id\n" +
+"            WHERE mf.macAdress = ?;";
 
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, macAdress);
@@ -179,10 +171,8 @@ public class ConexaoBd {
     public static void inserirAlerta(Connection conn, String dtHora, Double valor, int fkMetrica)
             throws SQLException {
 
-        String sql = """
-                    INSERT INTO alerta (dt_hora, valor_coletado, fkMetrica, fkStatus)
-                    VALUES (?, ?, ?, 1)
-                """;
+String sql = "INSERT INTO alerta (dt_hora, valor_coletado, fkMetrica, fkStatus)\n" +
+"                    VALUES (?, ?, ?, 1);";
 
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setString(1, dtHora);
