@@ -191,4 +191,22 @@ public class ConexaoAws {
 
         throw new RuntimeException("Bucket do tipo '" + tipo + "' não encontrado!");
     }
+
+    //Envia CSV do trusted e manda pro client
+    public static void enviarCsvClient(String nomeArquivo, String conteudoCsv) {
+        String bucketClient = pegarBucket("client");
+
+        try {
+            PutObjectRequest putReq = PutObjectRequest.builder()
+                    .bucket(bucketClient)
+                    .key(nomeArquivo)
+                    .build();
+
+            s3.putObject(putReq, RequestBody.fromString(conteudoCsv));
+
+
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar CSV para TRUSTED: " + e.getMessage());
+        }
+    }
 }

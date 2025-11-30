@@ -21,6 +21,8 @@ public class DashboardProcesso {
 
         List<String> idEmpresas = new ArrayList<>();
 
+        List<TrustedCampos> listaTrusted = new ArrayList<>();
+
         try (Connection conn = DriverManager.getConnection(
                 Dotenv.load().get("DB_URL"), Dotenv.load().get("DB_USER"), Dotenv.load().get("DB_PASSWORD"))) {
             idEmpresas = ConexaoBd.listaEmpresas(conn);
@@ -46,7 +48,6 @@ public class DashboardProcesso {
 
                 if (linhas.isEmpty()) continue;
 
-                List<TrustedCampos> listaTrusted = new ArrayList<>();
 
                 // pula o cabeçalho
                 for (int i = 1; i < linhas.size(); i++) {
@@ -124,6 +125,8 @@ public class DashboardProcesso {
 
             }
 
+            String csvtratado=gerarCsvTrusted(listaTrusted);
+            ConexaoAws.enviarCsvClient("dashboardprocesso.csv", csvtratado);
         }
 
 
