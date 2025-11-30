@@ -361,47 +361,5 @@ public class TrustedCampos {
 
     }
 
-    public TrustedCampos(String macAdress, String timestamp, String identificao_mainframe, Double uso_cpu_total_perc, Double uso_ram_total_perc, Double uso_disco_total_perc, Double disco_throughput_mbs, Double disco_iops_total, Double disco_read_count, Double disco_write_count, Double disco_latencia_ms, String nome1, Double cpu_perc1, Double mem_perc1, String nome2, Double cpu_perc2, Double mem_perc2, String nome3, Double cpu_perc3, Double mem_perc3, String nome4, Double cpu_perc4, Double mem_perc4, String nome5, Double cpu_perc5, Double mem_perc5, String nome6, Double cpu_perc6, Double mem_perc6, String nome7, Double cpu_perc7, Double mem_perc7, String nome8, Double cpu_perc8, Double mem_perc8, String nome9, Double cpu_perc9, Double mem_perc9, String nome10, Double cpu_perc10, Double mem_perc10) {
-        this.macAdress = macAdress;
-        this.timestamp = timestamp;
-        this.identificao_mainframe = identificao_mainframe;
-        this.uso_cpu_total_perc = uso_cpu_total_perc;
-        this.uso_ram_total_perc = uso_ram_total_perc;
-        this.uso_disco_total_perc = uso_disco_total_perc;
-        this.disco_throughput_mbs = disco_throughput_mbs;
-        this.disco_iops_total = disco_iops_total;
-        this.disco_read_count = disco_read_count;
-        this.disco_write_count = disco_write_count;
-        this.disco_latencia_ms = disco_latencia_ms;
-        this.nome1 = nome1;
-        this.cpu_perc1 = cpu_perc1;
-        this.mem_perc1 = mem_perc1;
-        this.nome2 = nome2;
-        this.cpu_perc2 = cpu_perc2;
-        this.mem_perc2 = mem_perc2;
-        this.nome3 = nome3;
-        this.cpu_perc3 = cpu_perc3;
-        this.mem_perc3 = mem_perc3;
-        this.nome4 = nome4;
-        this.cpu_perc4 = cpu_perc4;
-        this.mem_perc4 = mem_perc4;
-        this.nome5 = nome5;
-        this.cpu_perc5 = cpu_perc5;
-        this.mem_perc5 = mem_perc5;
-        this.nome6 = nome6;
-        this.cpu_perc6 = cpu_perc6;
-        this.mem_perc6 = mem_perc6;
-        this.nome7 = nome7;
-        this.cpu_perc7 = cpu_perc7;
-        this.mem_perc7 = mem_perc7;
-        this.nome8 = nome8;
-        this.cpu_perc8 = cpu_perc8;
-        this.mem_perc8 = mem_perc8;
-        this.nome9 = nome9;
-        this.cpu_perc9 = cpu_perc9;
-        this.mem_perc9 = mem_perc9;
-        this.nome10 = nome10;
-        this.cpu_perc10 = cpu_perc10;
-        this.mem_perc10 = mem_perc10;
-    }
+
 }
