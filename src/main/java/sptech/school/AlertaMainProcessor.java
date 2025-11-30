@@ -10,78 +10,99 @@ import java.util.List;
 
 public class AlertaMainProcessor {
 
-    // Configurações do arquivo .env
+    // configurações do arquivo .env
     private static final Dotenv DOTENV = Dotenv.load();
-    private static final Integer ID_EMPRESA = Integer.valueOf(DOTENV.get("ID_EMPRESA", "1"));
     private static final String NOME_ARQUIVO_DADOS = "trusted.csv";
 
     public static void main(String[] args) {
 
         String modoExecucao = DOTENV.get("MODO_EXECUCAO", "SIMULADO");
         List<Alerta> listaAlertas = new ArrayList<>();
-
         System.out.println("Iniciando Processador de Alertas em modo: " + modoExecucao.toUpperCase());
 
-        try (Connection conn = ConexaoBd.getConnection()) { // Usa getConnection() da ConexaoBd
+        try (Connection conn = ConexaoBd.getConnection()) {
 
             if (modoExecucao.equalsIgnoreCase("AWS")) {
 
-                System.out.println("Modo AWS: Buscando Mainframes no BD para a Empresa " + ID_EMPRESA + "...");
+                // busca lista de todas as empresas no Banco de Dados
+                System.out.println("Buscando empresas cadastradas...");
+                List<String> listaEmpresas = ConexaoBd.listaEmpresas(conn);
 
-                // Busca todos os MACs da empresa no BD
-                List<String> macs = ConexaoBd.buscarMac(conn, ID_EMPRESA.toString());
-
-                if (macs.isEmpty()) {
-                    System.out.println("Nenhum mainframe encontrado no BD para a Empresa " + ID_EMPRESA);
+                if (listaEmpresas.isEmpty()) {
+                    System.out.println("Nenhuma empresa encontrada no banco de dados.");
                     return;
                 }
 
-                // Itera sobre cada MAC para ler o arquivo no S3
-                for (String mac : macs) {
-                    System.out.println("Lendo dados do S3 para o MAC: " + mac);
-                    List<String[]> dadosAtuais = ConexaoAws.lerArquivoCsvDoTrusted(mac, ID_EMPRESA, NOME_ARQUIVO_DADOS);
+                // itera sobre cada empresa encontrada
+                for (String idEmpresaStr : listaEmpresas) {
+                    System.out.println("--------------------------------------------------");
+                    System.out.println("Processando empresa ID: " + idEmpresaStr);
 
-                    // Processa os dados lidos
-                    GeradorAlertas.processarDadosParaAlertas(conn, dadosAtuais, listaAlertas);
+                    System.out.println("Listando diretórios no S3 para a Empresa " + idEmpresaStr + "...");
+                    List<String> diretoriosMac = ConexaoAws.listarDiretorios(idEmpresaStr); // busca diretórios no S3
+
+                    if (diretoriosMac.isEmpty()) {
+                        System.out.println("Nenhum diretório/mainframe encontrado no S3 para a Empresa " + idEmpresaStr);
+                        continue;
+                    }
+
+                    // itera sobre cada diretório (MAC) encontrado no bucket desta empresa
+                    for (String dir : diretoriosMac) {
+
+                        String prefixo = idEmpresaStr + "/";
+                        String mac = dir.substring(prefixo.length()).replace("/", "");
+
+                        System.out.println("Processando MAC encontrado no S3: " + mac);
+
+                        // lê o CSV do dia atual para esse MAC e essa Empresa
+                        List<String[]> dadosAtuais = ConexaoAws.lerArquivoCsvDoTrusted(mac, idEmpresaStr, NOME_ARQUIVO_DADOS);
+
+                        // só processa se houver dados
+                        if (dadosAtuais != null && !dadosAtuais.isEmpty()) {
+                            // acumula os alertas na lista principal
+                            GeradorAlertas.processarDadosParaAlertas(conn, dadosAtuais, listaAlertas);
+                        } else {
+                            System.out.println("Nenhum dado encontrado hoje para o MAC: " + mac);
+                        }
+                    }
                 }
 
             } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
-
-                // Leitura local do trusted.csv
-                System.out.println("Modo SIMULADO: Lendo arquivo de dados localmente (" + NOME_ARQUIVO_DADOS + ")...");
+                System.out.println("Modo SIMULADO: Lendo arquivo local (" + NOME_ARQUIVO_DADOS + ")...");
                 List<String[]> dadosMainframe = GeradorAlertas.lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
                 GeradorAlertas.processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
-
-            } else {
-                System.err.println("MODO_EXECUCAO inválido no .env. Use 'AWS' ou 'SIMULADO'.");
-                return;
             }
 
-            // json
+            // geração e envio do json de alertas
             if (!listaAlertas.isEmpty()) {
-
                 String jsonAlertas = GeradorAlertas.montarJsonAlertas(listaAlertas);
-                String nomeArquivoAlertas = "alertas_empresa_" + ID_EMPRESA + ".json";
+                String nomeArquivoAlertas = "alertas.json";
+
+                System.out.println("--------------------------------------------------");
+                System.out.println("Total de alertas gerados: " + listaAlertas.size());
 
                 if (modoExecucao.equalsIgnoreCase("AWS")) {
-
-                    // Salva json no S3
+                    // envia pro client bucket
                     ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, jsonAlertas);
-                    System.out.println("JSON de Alertas enviado ao S3 CLIENT: " + nomeArquivoAlertas);
-
-
-                } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
+                } else {
                     salvarJsonLocal(nomeArquivoAlertas, jsonAlertas);
                 }
             } else {
-                System.out.println("Nenhum alerta gerado.");
+                System.out.println("Processamento finalizado. Nenhum alerta foi gerado.");
             }
 
         } catch (SQLException e) {
+<<<<<<< HEAD
             System.err.println(" Erro de conexão/SQL: " + e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
             System.err.println(" Erro de I/O na leitura local: " + e.getMessage());
+=======
+            System.err.println("Erro de conexão/SQL: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Erro de I/O na leitura local: " + e.getMessage());
+>>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
         }
     }
 

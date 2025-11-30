@@ -14,7 +14,7 @@ import java.util.Map;
 public class GeradorAlertas {
 
     private static final Double LIMITE_MAXIMO_ALERTA = 100.0;
-    private static final String NOME_ARQUIVO_DADOS_SIMULADO = "trusted.csv"; // Arquivo padrão para Simulado/Local
+    private static final String NOME_ARQUIVO_DADOS_SIMULADO = "trusted.csv";
 
     private static final int INDICE_MAC_ADRESS = 0;
     private static final int INDICE_DT_HORA = 1;
@@ -23,71 +23,13 @@ public class GeradorAlertas {
     private static final int INDICE_RAM = 4;
     private static final int INDICE_DISCO = 5;
 
-
-    // NOVO MÉTODO PRINCIPAL: Gera o JSON de alertas
-    public static String gerarJsonAlertas() {
-        Dotenv dotenv = Dotenv.load();
-        String modoExecucao = dotenv.get("MODO_EXECUCAO", "LOCAL");
-        List<String[]> dadosMainframe = null;
-        List<Alerta> listaAlertas = new ArrayList<>();
-
-        // 1. Extract (Leitura do CSV)
-        if (modoExecucao.equalsIgnoreCase("AWS")) {
-            System.out.println("Lendo dados do bucket TRUSTED (AWS)...");
-            // **TODO:** Implementar a lógica de leitura na AWS
-            // Exemplo: dadosMainframe = ConexaoAws.lerArquivosCsvDoTrusted();
-        } else if (modoExecucao.equalsIgnoreCase("SIMULADO") || modoExecucao.equalsIgnoreCase("LOCAL")) {
-            try {
-                System.out.println("Lendo arquivo de dados localmente: " + NOME_ARQUIVO_DADOS_SIMULADO);
-                // Assume que o CSV usa ';' como delimitador
-                dadosMainframe = lerArquivoCsvLocal(NOME_ARQUIVO_DADOS_SIMULADO);
-            } catch (IOException e) {
-                System.err.println("❌ Erro ao ler arquivo local: " + e.getMessage());
-                return "[]";
-            }
-        }
-
-        if (dadosMainframe == null || dadosMainframe.isEmpty()) {
-            System.out.println("⚠️ Nenhuma linha de dados encontrada para processamento.");
-            return "[]";
-        }
-
-        // 2. Transform and Load (Conexão e Processamento)
-        try (Connection conn = ConexaoBd.getConnection()) { // <--- CORREÇÃO AQUI: obterConexao() -> getConnection()
-
-            System.out.println("Conexão com BD estabelecida. Processando dados e gerando alertas...");
-
-            // Reutiliza a função que processa os dados, busca limites e insere no BD
-            processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
-
-        } catch (SQLException e) {
-            System.err.println("❌ Erro de SQL (conexão ou processamento): " + e.getMessage());
-        }
-
-        // 3. Output (Montar JSON e Salvar/Exibir)
-        String jsonAlertas = montarJsonAlertas(listaAlertas);
-
-        if (modoExecucao.equalsIgnoreCase("SIMULADO") || modoExecucao.equalsIgnoreCase("LOCAL")) {
-            System.out.println("\n--- SAÍDA JSON DOS ALERTAS GERADOS (Modo " + modoExecucao.toUpperCase() + ") ---");
-            System.out.println(jsonAlertas);
-        } else if (modoExecucao.equalsIgnoreCase("AWS")) {
-            // **TODO:** Chamar ConexaoAws.salvarJsonNoS3()
-            // String nomeArquivoJson = "alertas_" + System.currentTimeMillis() + ".json";
-            // ConexaoAws.salvarJsonNoS3(nomeArquivoJson, jsonAlertas);
-            System.out.println("JSON gerado com sucesso. Lógica de envio para AWS S3 deve ser implementada/descomentada.");
-        }
-
-        return jsonAlertas;
-    }
-
-
-    // Processa os dados de um mainframe especifico (Mantido inalterado)
+    // processa os dados de um mainframe especifico
     public static void processarDadosParaAlertas(Connection conn, List<String[]> dadosMainframe, List<Alerta> listaAlertas) {
         if (dadosMainframe == null || dadosMainframe.isEmpty()) {
             return;
         }
 
-        // Agrupa linhas por mainframe
+        // agrupa linhas por mainframe
         Map<String, List<String[]>> dadosPorMainframe = new HashMap<>();
         for (String[] linha : dadosMainframe) {
             if (linha.length > INDICE_MAC_ADRESS) {
@@ -100,26 +42,41 @@ public class GeradorAlertas {
             String macAdress = entry.getKey();
 
             try {
+<<<<<<< HEAD
                 // Busca os limites no BD
                 Map<String, MetricaInfo> limitesMainframe = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
+=======
+                // busca os limites no BD
+                Map<String, Double[]> limitesMainframe = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
+>>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 
                 if (limitesMainframe.isEmpty()) {
-                    System.out.println("⚠️ Limites não encontrados no BD para o MAC: " + macAdress);
+                    // System.out.println("Limites não encontrados no BD para o MAC: " + macAdress);
                     continue;
                 }
 
-                // Processa linha por linha do mainframe
+                // processa linha por linha do mainframe
                 for (String[] linha : entry.getValue()) {
                     processarLinhaMainframe(conn, listaAlertas, linha, limitesMainframe);
                 }
             } catch (SQLException e) {
+<<<<<<< HEAD
                 System.err.println(" Erro de SQL ao buscar limites para " + macAdress + ": " + e.getMessage());
+=======
+                System.err.println("Erro de SQL ao buscar limites para " + macAdress + ": " + e.getMessage());
+>>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
             }
         }
     }
 
+<<<<<<< HEAD
     // Lógica que verifica a linha, define a gravidade, insere no BD e adiciona à lista. (Mantido inalterado)
     private static void processarLinhaMainframe(Connection conn, List<Alerta> listaAlertas, String[] linha, Map<String, MetricaInfo> limitesMainframe) {
+=======
+    // verifica a linha
+    private static void processarLinhaMainframe(Connection conn, List<Alerta> listaAlertas, String[] linha,
+                                                Map<String, Double[]> limitesMainframe) {
+>>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 
         if (linha.length < INDICE_DISCO + 1) return;
 
@@ -155,8 +112,12 @@ public class GeradorAlertas {
         }
     }
 
+<<<<<<< HEAD
 
     // Lógica de gravidade (Mantido inalterado)
+=======
+    // define a gravidade
+>>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
     private static String definirGravidade(Double valor, Double min, Double max) {
         Double limiteMuitoUrgenteMax = max + ((LIMITE_MAXIMO_ALERTA - max) / 2);
         Double limiteMuitoUrgenteMin = min / 2;
@@ -167,16 +128,14 @@ public class GeradorAlertas {
         return "Normal";
     }
 
-    // NOVO MÉTODO: Monta a string final como um array JSON
+    // monta o json
     public static String montarJsonAlertas(List<Alerta> listaAlertas) {
         StringBuilder sb = new StringBuilder();
-        sb.append("[\n"); // Início do array JSON
+        sb.append("[\n");
 
         for (int i = 0; i < listaAlertas.size(); i++) {
-            // Usa o toString() de Alerta (que deve estar formatado para JSON)
             sb.append(listaAlertas.get(i).toString());
 
-            // Adiciona vírgula, exceto no último elemento
             if (i < listaAlertas.size() - 1) {
                 sb.append(",\n");
             } else {
@@ -184,11 +143,11 @@ public class GeradorAlertas {
             }
         }
 
-        sb.append("]"); // Fim do array JSON
+        sb.append("]");
         return sb.toString();
     }
 
-    // Método para leitura local (Mantido inalterado)
+    // leitura local teste
     public static List<String[]> lerArquivoCsvLocal(String nomeArquivo) throws IOException {
         List<String[]> linhas = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(nomeArquivo))) {
@@ -199,7 +158,6 @@ public class GeradorAlertas {
                     primeiraLinha = false;
                     continue;
                 }
-                // Ajustado para o delimitador ';' usado em arquivos CSV (como o trusted.csv)
                 linhas.add(linha.split(";"));
             }
         }

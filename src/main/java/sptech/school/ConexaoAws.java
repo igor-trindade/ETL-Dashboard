@@ -27,8 +27,33 @@ public class ConexaoAws {
             .build();
 
     // LER CSV DO TRUSTED
+    public static List<String> listarDiretorios(String idEmpresa) {
+        List<String> diretorios = new ArrayList<>();
+        String bucket = pegarBucket("trusted");
 
-    public static List<String[]> lerArquivoCsvDoTrusted(String mac, Integer empresa ,String nomeArquivo ) {
+        try {
+            ListObjectsV2Request listReq = ListObjectsV2Request.builder()
+                    .bucket(bucket)
+                    .prefix(idEmpresa+"/")
+                    .delimiter("/")
+                    .build();
+
+            ListObjectsV2Response res = s3.listObjectsV2(listReq);
+
+
+            res.commonPrefixes().forEach(cp -> diretorios.add(cp.prefix()));
+
+            System.out.println("Diretórios encontrados dentro de "+idEmpresa+"/: " + diretorios);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao listar diretórios: " + e.getMessage());
+        }
+
+        return diretorios;
+    }
+
+
+    public static List<String[]> lerArquivoCsvDoTrusted(String mac, String empresa ,String nomeArquivo ) {
 
         LocalDate hoje = LocalDate.now();
 
@@ -64,7 +89,7 @@ public class ConexaoAws {
             System.out.println("Arquivo lido do TRUSTED: " + diretorio);
 
         } catch (Exception e) {
-            System.err.println("Erro ao ler arquivo do  empresa + \"/\" + dia + mes + ano + \"/\": " + e.getMessage());
+            System.err.println("Empresa sem Registro de Mainframe no Bucket");
         }
 
         return linhas;
@@ -93,6 +118,7 @@ public class ConexaoAws {
             return linhas;
    }
 
+<<<<<<< HEAD
     public static List<String> listarDiretorios() {
         List<String> diretorios = new ArrayList<>();
         String bucket = pegarBucket("trusted"); // seu bucket "trusted"
@@ -124,6 +150,16 @@ String sql = "SELECT m.macAdress\n" +
 "            JOIN setor s ON s.fkempresa = e.id\n" +
 "            JOIN mainframe m ON m.fksetor = s.id\n" +
 "            WHERE e.id = ?;";
+=======
+   public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
+        String sql = """
+            SELECT m.macAdress 
+            FROM empresa e
+            JOIN setor s ON s.fkempresa = e.id
+            JOIN mainframe m ON m.fksetor = s.id
+            WHERE e.id = ?;
+        """;
+>>>>>>> 8f7c74a3d91767ce2e6970387fbf1b30a236733d
 
         List<String> lista = new ArrayList<>();
 
@@ -138,6 +174,7 @@ String sql = "SELECT m.macAdress\n" +
 
         return lista;
     }
+
 
     // ENVIAR JSON PARA TRUSTED
 
