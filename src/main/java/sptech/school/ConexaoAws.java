@@ -61,9 +61,8 @@ public class ConexaoAws {
         int mes  = hoje.getMonthValue();
         int ano  = hoje.getYear();
 
-
-        String diretorio = empresa + "/" + mac + "/"+dia + mes + ano + "/" + nomeArquivo;
-
+        //String diretorio = empresa + "/" + mac + "/"+dia + mes + ano + "/" + nomeArquivo;
+        String diretorio = empresa + "/" + mac + "/"  + nomeArquivo;
 
         List<String[]> linhas = new ArrayList<>();
 

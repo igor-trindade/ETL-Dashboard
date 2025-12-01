@@ -9,10 +9,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DashboardProcesso {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -38,16 +35,13 @@ public class DashboardProcesso {
             List<Map<String, Object>> mainframesJson = new ArrayList<>();
 
             List<String> dirs = ConexaoAws.listarDiretorios(empresa);
-
             for (String dir : dirs) {
 
                 String mac = dir.replace("1/", "").replace("/", "");
-
                 //linhas
                 List<String[]> linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac, empresa, "trusted.csv");
 
                 if (linhas.isEmpty()) continue;
-
 
                 // pula o cabeçalho
                 for (int i = 1; i < linhas.size(); i++) {
@@ -115,16 +109,15 @@ public class DashboardProcesso {
                     trusted.setMem_perc9(Double.parseDouble(registro[37].replace(",", ".")));
 
                     // process 10
-                    trusted.setNome10(registro[38]);
-                    trusted.setCpu_perc10(Double.parseDouble(registro[39].replace(",", ".")));
-                    trusted.setMem_perc10(Double.parseDouble(registro[40].replace(",", ".")));
+//                    trusted.setNome10(registro[38]);
+//                    trusted.setCpu_perc10(Double.parseDouble(registro[39].replace(",", ".")));
+//                    trusted.setMem_perc10(Double.parseDouble(registro[40].replace(",", ".")));
 
                     listaTrusted.add(trusted);
 
                 }
 
             }
-
             String csvtratado=gerarCsvTrusted(listaTrusted);
             ConexaoAws.enviarCsvClient("dashboardprocesso.csv", csvtratado);
         }
@@ -135,11 +128,11 @@ public class DashboardProcesso {
     public static String gerarCsvTrusted(List<TrustedCampos> listatrusted) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("macAdress;timestamp;identificao-mainframe;uso_cpu_total_%;uso_ram_total_%;uso_disco_total_%;disco_throughput_mbs;disco_iops_total;disco_read_count;disco_write_count;disco_latencia_ms;nome1;cpu_%1;mem_%1;nome2;cpu_%2;mem_%2;nome3;cpu_%3;mem_%3;nome4;cpu_%4;mem_%4;nome5;cpu_%5;mem_%5;nome6;cpu_%6;mem_%6;nome7;cpu_%7;mem_%7;nome8;cpu_%8;mem_%8;nome9;cpu_%9;mem_%9;\n");
+        sb.append("macAdress;timestamp;identificao-mainframe;uso_cpu_total_perc;uso_ram_total_perc;uso_disco_total_perc;disco_throughput_mbs;disco_iops_total;disco_read_count;disco_write_count;disco_latencia_ms;nome1;cpu_perc1;mem_perc1;nome2;cpu_perc2;mem_perc2;nome3;cpu_perc3;mem_perc3;nome4;cpu_perc4;mem_perc4;nome5;cpu_perc5;mem_perc5;nome6;cpu_perc6;mem_perc6;nome7;cpu_perc7;mem_perc7;nome8;cpu_perc8;mem_perc8;nome9;cpu_perc9;mem_perc9;\n");
 
         for (TrustedCampos trusted : listatrusted) {
-
-            sb.append(String.format(
+            
+            sb.append(String.format(Locale.ROOT,
                     "%s;%s;%s;%.2f;%.2f;%.2f;%.2f;%d;%d;%d;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f;%s;%.2f;%.2f\n",
                     trusted.getMacAdress(),
                     trusted.getTimestamp(),
