@@ -120,6 +120,9 @@ public class DashboardProcesso {
             }
             String csvtratado=gerarCsvTrusted(listaTrusted);
             ConexaoAws.enviarCsvClient("dashboardprocesso.csv", csvtratado);
+
+            //List<Map<String, Object>> dadosProcessados = processarDados(dadosMainframe);
+            //salvarJsonLocal(dadosProcessados, ARQUIVO_SAIDA_JSON);
         }
 
 
