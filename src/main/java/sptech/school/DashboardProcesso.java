@@ -45,7 +45,6 @@ public class DashboardProcesso {
 
                 // pula o cabeçalho
                 for (int i = 1; i < linhas.size(); i++) {
-
                     String[] registro = linhas.get(i);
 
                     TrustedCampos trusted = new TrustedCampos();
