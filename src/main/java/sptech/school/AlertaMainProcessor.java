@@ -76,7 +76,7 @@ public class AlertaMainProcessor {
             // geração e envio do json de alertas
             if (!listaAlertas.isEmpty()) {
                 String jsonAlertas = GeradorAlertas.montarJsonAlertas(listaAlertas);
-                String nomeArquivoAlertas = "alertas.json";
+                String nomeArquivoAlertas = "alertas_" + System.currentTimeMillis() + ".json";
 
                 System.out.println("--------------------------------------------------");
                 System.out.println("Total de alertas gerados: " + listaAlertas.size());
