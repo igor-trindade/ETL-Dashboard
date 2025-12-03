@@ -98,6 +98,90 @@ public class AlertaMainProcessor {
             System.err.println(" Erro de I/O na leitura local: " + e.getMessage());
         }
     }
+    public void executar(){
+
+        String modoExecucao = DOTENV.get("MODO_EXECUCAO", "SIMULADO");
+        List<Alerta> listaAlertas = new ArrayList<>();
+        System.out.println("Iniciando Processador de Alertas em modo: " + modoExecucao.toUpperCase());
+
+        try (Connection conn = ConexaoBd.getConnection()) {
+
+            if (modoExecucao.equalsIgnoreCase("AWS")) {
+
+                // busca lista de todas as empresas no Banco de Dados
+                System.out.println("Buscando empresas cadastradas...");
+                List<String> listaEmpresas = ConexaoBd.listaEmpresas(conn);
+
+                if (listaEmpresas.isEmpty()) {
+                    System.out.println("Nenhuma empresa encontrada no banco de dados.");
+                    return;
+                }
+
+                // itera sobre cada empresa encontrada
+                for (String idEmpresaStr : listaEmpresas) {
+                    System.out.println("--------------------------------------------------");
+                    System.out.println("Processando empresa ID: " + idEmpresaStr);
+
+                    System.out.println("Listando diretórios no S3 para a Empresa " + idEmpresaStr + "...");
+                    List<String> diretoriosMac = ConexaoAws.listarDiretorios(idEmpresaStr); // busca diretórios no S3
+
+                    if (diretoriosMac.isEmpty()) {
+                        System.out.println("Nenhum diretório/mainframe encontrado no S3 para a Empresa " + idEmpresaStr);
+                        continue;
+                    }
+
+                    // itera sobre cada diretório (MAC) encontrado no bucket desta empresa
+                    for (String dir : diretoriosMac) {
+
+                        String prefixo = idEmpresaStr + "/";
+                        String mac = dir.substring(prefixo.length()).replace("/", "");
+
+                        System.out.println("Processando MAC encontrado no S3: " + mac);
+
+                        // lê o CSV do dia atual para esse MAC e essa Empresa
+                        List<String[]> dadosAtuais = ConexaoAws.lerArquivoCsvDoTrusted(mac, idEmpresaStr, NOME_ARQUIVO_DADOS);
+
+                        // só processa se houver dados
+                        if (dadosAtuais != null && !dadosAtuais.isEmpty()) {
+                            // acumula os alertas na lista principal
+                            GeradorAlertas.processarDadosParaAlertas(conn, dadosAtuais, listaAlertas);
+                        } else {
+                            System.out.println("Nenhum dado encontrado hoje para o MAC: " + mac);
+                        }
+                    }
+                }
+
+            } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
+                System.out.println("Modo SIMULADO: Lendo arquivo local (" + NOME_ARQUIVO_DADOS + ")...");
+                List<String[]> dadosMainframe = GeradorAlertas.lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
+                GeradorAlertas.processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
+            }
+
+            // geração e envio do json de alertas
+            if (!listaAlertas.isEmpty()) {
+                String jsonAlertas = GeradorAlertas.montarJsonAlertas(listaAlertas);
+                String nomeArquivoAlertas = "alertas.json";
+
+                System.out.println("--------------------------------------------------");
+                System.out.println("Total de alertas gerados: " + listaAlertas.size());
+
+                if (modoExecucao.equalsIgnoreCase("AWS")) {
+                    // envia pro client bucket
+                    ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, jsonAlertas);
+                } else {
+                    salvarJsonLocal(nomeArquivoAlertas, jsonAlertas);
+                }
+            } else {
+                System.out.println("Processamento finalizado. Nenhum alerta foi gerado.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println(" Erro de conexão/SQL: " + e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println(" Erro de I/O na leitura local: " + e.getMessage());
+        }
+    }
 
     private static void salvarJsonLocal(String nomeArquivo, String jsonContent) {
         try (FileWriter writer = new FileWriter(nomeArquivo)) {
