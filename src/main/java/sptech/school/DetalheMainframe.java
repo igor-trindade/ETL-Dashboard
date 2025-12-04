@@ -45,17 +45,19 @@
 
                     if (linhas.isEmpty()) continue;
 
-                    Integer ultimo = linhas.size() - 1;
-
+                    Integer ultimo = linhas.size() - 2;
+                    System.out.println(ultimo);
                     ArrayList<Double> cpu = new ArrayList<>();
                     ArrayList<Double> ram = new ArrayList<>();
                     ArrayList<Double> disk = new ArrayList<>();
                     ArrayList<String> dthr = new ArrayList<>();
                     String macAdress = linhas.get(ultimo)[0].replace(",", ".");
+
+                    System.out.println(linhas.get(ultimo)[1]);
                     Double throughput = Double.valueOf(linhas.get(ultimo)[6].replace(",", "."));
                     Double iops = Double.valueOf(linhas.get(ultimo)[7].replace(",", "."));
                     Double latencia = Double.valueOf(linhas.get(ultimo)[10].replace(",", "."));
-                    Integer ultimoDado = linhas.size() - 1;
+                    Integer ultimoDado = linhas.size() - 2;
 
                     for (int i = 0; i < 5; i++) {
                         cpu.add(Double.valueOf(linhas.get(ultimoDado)[3].replace(",", ".")));
@@ -105,6 +107,7 @@
                     mainframe.put("latencia", latencia);
                     mainframe.put("metricas",metricas);
                     mainframe.put("tempoAlerta",hhmm);
+                    mainframe.put("dt",dthr);
 
                     mainframesJson.add(mainframe);
                 }

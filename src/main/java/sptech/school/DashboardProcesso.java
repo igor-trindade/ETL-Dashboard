@@ -39,7 +39,7 @@ public class DashboardProcesso {
 
                 String mac = dir.replace("1/", "").replace("/", "");
                 //linhas
-                List<String[]> linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac, empresa, "trusted.csv");
+                List<String[]> linhas = ConexaoAws.lerArquivoGeralCsvDoTrusted(mac, empresa);
 
                 if (linhas.isEmpty()) continue;
 
