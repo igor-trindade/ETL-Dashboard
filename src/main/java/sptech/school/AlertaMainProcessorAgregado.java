@@ -57,20 +57,32 @@ public class AlertaMainProcessorAgregado {
                         String prefixo = idEmpresaStr + "/";
                         String mac = dir.substring(prefixo.length()).replace("/", "");
 
-                        System.out.println("Processando MAC encontrado no S3: " + mac);
+                        System.out.println("Processando MAC: " + mac);
 
-                        // lê o CSV do dia atual
-                        List<String[]> dadosAtuais = ConexaoAws.lerArquivoCsvDoTrusted(mac, idEmpresaStr, NOME_ARQUIVO_DADOS);
+                        // 1. TENTA LER O ARQUIVO GERAL (TRUSTED CONSOLIDADO)
+                        List<String[]> dadosParaProcessar = ConexaoAws.lerArquivoGeralCsvDoTrusted(idEmpresaStr, mac);
 
-                        if (dadosAtuais != null && !dadosAtuais.isEmpty()) {
+                        if (!dadosParaProcessar.isEmpty()) {
+                            System.out.println(">> Fonte de dados: ARQUIVO GERAL (consolidado)");
+                        } else {
+                            // 2. FALHA AO LER O GERAL, TENTA LER O ARQUIVO DO DIA ATUAL
+                            dadosParaProcessar = ConexaoAws.lerArquivoCsvDoTrustedDiario(idEmpresaStr, mac, NOME_ARQUIVO_DADOS);
+
+                            if (!dadosParaProcessar.isEmpty()) {
+                                System.out.println(">> Fonte de dados: ARQUIVO DIÁRIO (hoje)");
+                            } else {
+                                System.out.println(">> Nenhuma fonte de dados encontrada (Geral ou Diária) para o MAC: " + mac);
+                            }
+                        }
+
+                        // só processa se houver dados
+                        if (!dadosParaProcessar.isEmpty()) {
                             // CHAMA A FUNÇÃO DA SUA NOVA CLASSE DE PROCESSAMENTO AGREGADO
                             Map<String, AlertaQuantidade> contagemMainframe =
-                                    GeradorAlertasAgregados.processarDadosParaContagem(conn, dadosAtuais);
+                                    GeradorAlertasAgregados.processarDadosParaContagem(conn, dadosParaProcessar);
 
                             // Junta os resultados no mapa total
                             mapaContagemTotal.putAll(contagemMainframe);
-                        } else {
-                            System.out.println("Nenhum dado encontrado hoje para o MAC: " + mac);
                         }
                     }
                 }
