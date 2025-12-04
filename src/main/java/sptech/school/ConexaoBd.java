@@ -200,6 +200,34 @@ String sql = "INSERT INTO alerta (dt_hora, valor_coletado, fkMetrica, fkStatus)\
         return lista;
     }
 
+    public static Map<String, Object> buscarDadosMainframe(Connection conn, String macAdress) throws SQLException {
+
+        String sql =
+                "SELECT fabricante, modelo, macAdress " +
+                        "FROM mainframe " +
+                        "WHERE macAdress = ? " +
+                        "LIMIT 1;";
+
+        Map<String, Object> dados = new HashMap<>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, macAdress);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                dados.put("fabricante", rs.getString("fabricante"));
+                dados.put("modelo", rs.getString("modelo"));
+                dados.put("mac", rs.getString("macAdress"));
+
+                dados.put("capacidade_tb", 0.0);
+            }
+        }
+
+        return dados;
+    }
+
 
     public static List<String> buscarMinMax(Connection conn, String macAdress) throws SQLException {
         String sql =

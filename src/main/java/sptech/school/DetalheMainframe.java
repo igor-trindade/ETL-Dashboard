@@ -31,7 +31,6 @@
 
             //  array de empresas
             List<Map<String, Object>> empresasJson = new ArrayList<>();
-
             for(String empresa : idEmpresas){
 
                 List<Map<String, Object>> mainframesJson = new ArrayList<>();
