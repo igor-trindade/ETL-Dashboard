@@ -55,7 +55,26 @@ public class DashboardDataProcessor {
         List<Map<String, Object>> dadosProcessados = processarDados(dadosMainframe);
         salvarJsonLocal(dadosProcessados, ARQUIVO_SAIDA_JSON);
     }
+    public void executar(){
+        System.out.println("Iniciando processamento de dados para o Dashboard...");
 
+        List<String[]> dadosMainframe = null;
+
+        try {
+            dadosMainframe = lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
+        } catch (IOException e) {
+            System.err.println("❌ Erro ao ler arquivo local: " + e.getMessage());
+            return;
+        }
+
+        if (dadosMainframe == null || dadosMainframe.isEmpty()) {
+            System.out.println("Nenhum dado encontrado no CSV.");
+            return;
+        }
+
+        List<Map<String, Object>> dadosProcessados = processarDados(dadosMainframe);
+        salvarJsonLocal(dadosProcessados, ARQUIVO_SAIDA_JSON);
+    }
     private static List<String[]> lerArquivoCsvLocal(String caminhoArquivo) throws IOException {
         List<String[]> dados = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(caminhoArquivo))) {

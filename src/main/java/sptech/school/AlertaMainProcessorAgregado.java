@@ -5,20 +5,25 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class AlertaMainProcessor {
+public class AlertaMainProcessorAgregado {
 
     // configurações do arquivo .env
     private static final Dotenv DOTENV = Dotenv.load();
     private static final String NOME_ARQUIVO_DADOS = "trusted.csv";
+    private static final String NOME_ARQUIVO_JSON_SAIDA = "quantidadeAlertas.json";
 
     public static void main(String[] args) {
 
         String modoExecucao = DOTENV.get("MODO_EXECUCAO", "SIMULADO");
-        List<Alerta> listaAlertas = new ArrayList<>();
-        System.out.println("Iniciando Processador de Alertas em modo: " + modoExecucao.toUpperCase());
+
+        // Mapa para acumular a contagem agregada de todos os mainframes
+        Map<String, AlertaQuantidade> mapaContagemTotal = new HashMap<>();
+
+        System.out.println("Iniciando Processador de Alertas AGREGADOS em modo: " + modoExecucao.toUpperCase());
 
         try (Connection conn = ConexaoBd.getConnection()) {
 
@@ -39,7 +44,7 @@ public class AlertaMainProcessor {
                     System.out.println("Processando empresa ID: " + idEmpresaStr);
 
                     System.out.println("Listando diretórios no S3 para a Empresa " + idEmpresaStr + "...");
-                    List<String> diretoriosMac = ConexaoAws.listarDiretorios(idEmpresaStr); // busca diretórios no S3
+                    List<String> diretoriosMac = ConexaoAws.listarDiretorios(idEmpresaStr);
 
                     if (diretoriosMac.isEmpty()) {
                         System.out.println("Nenhum diretório/mainframe encontrado no S3 para a Empresa " + idEmpresaStr);
@@ -72,8 +77,12 @@ public class AlertaMainProcessor {
 
                         // só processa se houver dados
                         if (!dadosParaProcessar.isEmpty()) {
-                            // acumula os alertas na lista principal
-                            GeradorAlertas.processarDadosParaAlertas(conn, dadosParaProcessar, listaAlertas);
+                            // CHAMA A FUNÇÃO DA SUA NOVA CLASSE DE PROCESSAMENTO AGREGADO
+                            Map<String, AlertaQuantidade> contagemMainframe =
+                                    GeradorAlertasAgregados.processarDadosParaContagem(conn, dadosParaProcessar);
+
+                            // Junta os resultados no mapa total
+                            mapaContagemTotal.putAll(contagemMainframe);
                         }
                     }
                 }
@@ -81,22 +90,28 @@ public class AlertaMainProcessor {
             } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
                 System.out.println("Modo SIMULADO: Lendo arquivo local (" + NOME_ARQUIVO_DADOS + ")...");
                 List<String[]> dadosMainframe = GeradorAlertas.lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
-                GeradorAlertas.processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
+
+                // CHAMA A FUNÇÃO DA SUA NOVA CLASSE DE PROCESSAMENTO AGREGADO
+                Map<String, AlertaQuantidade> contagemMainframe =
+                        GeradorAlertasAgregados.processarDadosParaContagem(conn, dadosMainframe);
+
+                mapaContagemTotal.putAll(contagemMainframe);
             }
 
             // geração e envio do json de alertas
-            if (!listaAlertas.isEmpty()) {
-                String jsonAlertas = GeradorAlertas.montarJsonAlertas(listaAlertas);
-                String nomeArquivoAlertas = "alertas.json";
+            if (!mapaContagemTotal.isEmpty()) {
+
+                // CHAMA A FUNÇÃO DA SUA NOVA CLASSE PARA MONTAR O JSON AGREGADO
+                String jsonAlertas = GeradorAlertasAgregados.montarJsonAlertasAgregados(mapaContagemTotal);
 
                 System.out.println("--------------------------------------------------");
-                System.out.println("Total de alertas gerados: " + listaAlertas.size());
+                System.out.println("Total de linhas agregadas no JSON: " + mapaContagemTotal.size());
 
                 if (modoExecucao.equalsIgnoreCase("AWS")) {
-                    // envia pro client bucket
-                    ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, jsonAlertas);
+                    // Envia para o S3
+                    ConexaoAws.salvarJsonNoS3(NOME_ARQUIVO_JSON_SAIDA, jsonAlertas);
                 } else {
-                    salvarJsonLocal(nomeArquivoAlertas, jsonAlertas);
+                    salvarJsonLocal(NOME_ARQUIVO_JSON_SAIDA, jsonAlertas);
                 }
             } else {
                 System.out.println("Processamento finalizado. Nenhum alerta foi gerado.");
@@ -109,11 +124,14 @@ public class AlertaMainProcessor {
             System.err.println(" Erro de I/O na leitura local: " + e.getMessage());
         }
     }
-    public void executar(){
 
+    public void executar(){
         String modoExecucao = DOTENV.get("MODO_EXECUCAO", "SIMULADO");
-        List<Alerta> listaAlertas = new ArrayList<>();
-        System.out.println("Iniciando Processador de Alertas em modo: " + modoExecucao.toUpperCase());
+
+        // Mapa para acumular a contagem agregada de todos os mainframes
+        Map<String, AlertaQuantidade> mapaContagemTotal = new HashMap<>();
+
+        System.out.println("Iniciando Processador de Alertas AGREGADOS em modo: " + modoExecucao.toUpperCase());
 
         try (Connection conn = ConexaoBd.getConnection()) {
 
@@ -134,7 +152,7 @@ public class AlertaMainProcessor {
                     System.out.println("Processando empresa ID: " + idEmpresaStr);
 
                     System.out.println("Listando diretórios no S3 para a Empresa " + idEmpresaStr + "...");
-                    List<String> diretoriosMac = ConexaoAws.listarDiretorios(idEmpresaStr); // busca diretórios no S3
+                    List<String> diretoriosMac = ConexaoAws.listarDiretorios(idEmpresaStr);
 
                     if (diretoriosMac.isEmpty()) {
                         System.out.println("Nenhum diretório/mainframe encontrado no S3 para a Empresa " + idEmpresaStr);
@@ -149,13 +167,16 @@ public class AlertaMainProcessor {
 
                         System.out.println("Processando MAC encontrado no S3: " + mac);
 
-                        // lê o CSV do dia atual para esse MAC e essa Empresa
+                        // lê o CSV do dia atual
                         List<String[]> dadosAtuais = ConexaoAws.lerArquivoCsvDoTrusted(mac, idEmpresaStr, NOME_ARQUIVO_DADOS);
 
-                        // só processa se houver dados
                         if (dadosAtuais != null && !dadosAtuais.isEmpty()) {
-                            // acumula os alertas na lista principal
-                            GeradorAlertas.processarDadosParaAlertas(conn, dadosAtuais, listaAlertas);
+                            // CHAMA A FUNÇÃO DA SUA NOVA CLASSE DE PROCESSAMENTO AGREGADO
+                            Map<String, AlertaQuantidade> contagemMainframe =
+                                    GeradorAlertasAgregados.processarDadosParaContagem(conn, dadosAtuais);
+
+                            // Junta os resultados no mapa total
+                            mapaContagemTotal.putAll(contagemMainframe);
                         } else {
                             System.out.println("Nenhum dado encontrado hoje para o MAC: " + mac);
                         }
@@ -165,22 +186,28 @@ public class AlertaMainProcessor {
             } else if (modoExecucao.equalsIgnoreCase("SIMULADO")) {
                 System.out.println("Modo SIMULADO: Lendo arquivo local (" + NOME_ARQUIVO_DADOS + ")...");
                 List<String[]> dadosMainframe = GeradorAlertas.lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
-                GeradorAlertas.processarDadosParaAlertas(conn, dadosMainframe, listaAlertas);
+
+                // CHAMA A FUNÇÃO DA SUA NOVA CLASSE DE PROCESSAMENTO AGREGADO
+                Map<String, AlertaQuantidade> contagemMainframe =
+                        GeradorAlertasAgregados.processarDadosParaContagem(conn, dadosMainframe);
+
+                mapaContagemTotal.putAll(contagemMainframe);
             }
 
             // geração e envio do json de alertas
-            if (!listaAlertas.isEmpty()) {
-                String jsonAlertas = GeradorAlertas.montarJsonAlertas(listaAlertas);
-                String nomeArquivoAlertas = "alertas.json";
+            if (!mapaContagemTotal.isEmpty()) {
+
+                // CHAMA A FUNÇÃO DA SUA NOVA CLASSE PARA MONTAR O JSON AGREGADO
+                String jsonAlertas = GeradorAlertasAgregados.montarJsonAlertasAgregados(mapaContagemTotal);
 
                 System.out.println("--------------------------------------------------");
-                System.out.println("Total de alertas gerados: " + listaAlertas.size());
+                System.out.println("Total de linhas agregadas no JSON: " + mapaContagemTotal.size());
 
                 if (modoExecucao.equalsIgnoreCase("AWS")) {
-                    // envia pro client bucket
-                    ConexaoAws.salvarJsonNoS3(nomeArquivoAlertas, jsonAlertas);
+                    // Envia para o S3
+                    ConexaoAws.salvarJsonNoS3(NOME_ARQUIVO_JSON_SAIDA, jsonAlertas);
                 } else {
-                    salvarJsonLocal(nomeArquivoAlertas, jsonAlertas);
+                    salvarJsonLocal(NOME_ARQUIVO_JSON_SAIDA, jsonAlertas);
                 }
             } else {
                 System.out.println("Processamento finalizado. Nenhum alerta foi gerado.");

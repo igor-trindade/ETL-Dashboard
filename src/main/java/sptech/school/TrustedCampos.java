@@ -361,5 +361,50 @@ public class TrustedCampos {
 
     }
 
-
+    @Override
+    public String toString() {
+        return "TrustedCampos{" +
+                "macAdress='" + macAdress + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                ", identificao_mainframe='" + identificao_mainframe + '\'' +
+                ", uso_cpu_total_perc=" + uso_cpu_total_perc +
+                ", uso_ram_total_perc=" + uso_ram_total_perc +
+                ", uso_disco_total_perc=" + uso_disco_total_perc +
+                ", disco_throughput_mbs=" + disco_throughput_mbs +
+                ", disco_iops_total=" + disco_iops_total +
+                ", disco_read_count=" + disco_read_count +
+                ", disco_write_count=" + disco_write_count +
+                ", disco_latencia_ms=" + disco_latencia_ms +
+                ", nome1='" + nome1 + '\'' +
+                ", cpu_perc1=" + cpu_perc1 +
+                ", mem_perc1=" + mem_perc1 +
+                ", nome2='" + nome2 + '\'' +
+                ", cpu_perc2=" + cpu_perc2 +
+                ", mem_perc2=" + mem_perc2 +
+                ", nome3='" + nome3 + '\'' +
+                ", cpu_perc3=" + cpu_perc3 +
+                ", mem_perc3=" + mem_perc3 +
+                ", nome4='" + nome4 + '\'' +
+                ", cpu_perc4=" + cpu_perc4 +
+                ", mem_perc4=" + mem_perc4 +
+                ", nome5='" + nome5 + '\'' +
+                ", cpu_perc5=" + cpu_perc5 +
+                ", mem_perc5=" + mem_perc5 +
+                ", nome6='" + nome6 + '\'' +
+                ", cpu_perc6=" + cpu_perc6 +
+                ", mem_perc6=" + mem_perc6 +
+                ", nome7='" + nome7 + '\'' +
+                ", cpu_perc7=" + cpu_perc7 +
+                ", mem_perc7=" + mem_perc7 +
+                ", nome8='" + nome8 + '\'' +
+                ", cpu_perc8=" + cpu_perc8 +
+                ", mem_perc8=" + mem_perc8 +
+                ", nome9='" + nome9 + '\'' +
+                ", cpu_perc9=" + cpu_perc9 +
+                ", mem_perc9=" + mem_perc9 +
+                ", nome10='" + nome10 + '\'' +
+                ", cpu_perc10=" + cpu_perc10 +
+                ", mem_perc10=" + mem_perc10 +
+                '}';
+    }
 }

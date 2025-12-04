@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.InputStreamReader;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,13 +58,14 @@ public class ConexaoAws {
 
         LocalDate hoje = LocalDate.now();
 
-        int dia  = hoje.getDayOfMonth();
+        //int dia  = hoje.getDayOfMonth();
+        String dia = hoje.format(DateTimeFormatter.ofPattern("dd"));
         int mes  = hoje.getMonthValue();
         int ano  = hoje.getYear();
 
-
         String diretorio = empresa + "/" + mac + "/"+dia + mes + ano + "/" + nomeArquivo;
-
+        //String diretorio = empresa + "/" + mac + "/"  + nomeArquivo
+        System.out.println(diretorio);
 
         List<String[]> linhas = new ArrayList<>();
 
@@ -95,6 +97,54 @@ public class ConexaoAws {
         return linhas;
     }
 
+    public static List<String[]> lerArquivoGeralCsvDoTrusted(String idEmpresa, String mac) {
+        String keyGeral = String.format("%s/%s/geral/trusted.csv", idEmpresa, mac);
+        return lerArquivoCsvDoTrusted(keyGeral, "trusted"); // Chama o método de leitura
+    }
+
+    public static List<String[]> lerArquivoCsvDoTrustedDiario(String idEmpresa, String mac, String nomeArquivo) {
+        LocalDate hoje = LocalDate.now();
+        String dataFormatada = hoje.format(DateTimeFormatter.ofPattern("ddMMyyyy"));
+
+        // Caminho do arquivo diário
+        String keyDiario = String.format("%s/%s/%s/%s", idEmpresa, mac, dataFormatada, nomeArquivo);
+        return lerArquivoCsvDoTrusted(keyDiario, "trusted"); // Chama o método de leitura
+    }
+
+    private static List<String[]> lerArquivoCsvDoTrusted(String keyCaminho, String tipoBucket) {
+        List<String[]> linhas = new ArrayList<>();
+        String bucket = pegarBucket(tipoBucket);
+
+        try {
+            GetObjectRequest getReq = GetObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(keyCaminho)
+                    .build();
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(s3.getObject(getReq)))) {
+
+                String linha;
+                while ((linha = reader.readLine()) != null) {
+                    if (!linha.trim().isEmpty()) {
+                        linhas.add(linha.split(";"));
+                    }
+                }
+            }
+
+            System.out.println("✅ Arquivo lido do S3 ("+tipoBucket+"): " + keyCaminho);
+
+        } catch (NoSuchKeyException e) {
+            // Retorna lista vazia (linhas) se o arquivo não existir (NoSuchKey)
+            System.out.println("⚠️ Arquivo não encontrado (NoSuchKey): " + keyCaminho);
+        } catch (Exception e) {
+            System.err.println("❌ Erro ao ler arquivo do S3 em " + keyCaminho + ": " + e.getMessage());
+            // Se der erro por outro motivo, retorna a lista vazia
+        }
+
+        return linhas;
+    }
+
     public static List<String[]> lerCsvLocal(String nomeArquivo) {
 
             List<String[]> linhas = new ArrayList<>();
@@ -117,31 +167,6 @@ public class ConexaoAws {
 
             return linhas;
    }
-
-    public static List<String> listarDiretorios() {
-        List<String> diretorios = new ArrayList<>();
-        String bucket = pegarBucket("trusted"); // seu bucket "trusted"
-
-        try {
-            ListObjectsV2Request listReq = ListObjectsV2Request.builder()
-                    .bucket(bucket)
-                    .prefix("1/")
-                    .delimiter("/")
-                    .build();
-
-            ListObjectsV2Response res = s3.listObjectsV2(listReq);
-
-
-            res.commonPrefixes().forEach(cp -> diretorios.add(cp.prefix()));
-
-            System.out.println("Diretórios encontrados dentro de 1/: " + diretorios);
-
-        } catch (Exception e) {
-            System.err.println("Erro ao listar diretórios: " + e.getMessage());
-        }
-
-        return diretorios;
-    }
 
     public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
 String sql = "SELECT m.macAdress\n" +
