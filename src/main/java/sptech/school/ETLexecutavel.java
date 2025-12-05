@@ -7,11 +7,13 @@ public class ETLexecutavel {
         DashboardDataProcessor dashboardDataProcessor=new DashboardDataProcessor();
         DashboardProcesso dashboardProcesso=new DashboardProcesso();
         DetalheMainframe detalheMainframe=new DetalheMainframe();
+        DetalhesArmazenamento detalhesArmazenamento=new DetalhesArmazenamento();
 
         alerta.executar();
         alertaagregado.executar();
         dashboardDataProcessor.executar();
         detalheMainframe.executar();
         dashboardProcesso.executar();
+        detalhesArmazenamento.executar();
     }
 }
