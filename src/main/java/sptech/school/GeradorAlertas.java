@@ -85,11 +85,18 @@ public class GeradorAlertas {
             try {
                 Double valor = Double.parseDouble(linha[indiceCsv].replace(",", "."));
 
-                ConexaoBd.inserirAlerta(conn, dtHora, valor, mi.getIdMetrica());
+                // Calcula a gravidade (Normal, Urgente, Emergencia)
+                String gravidade = definirGravidade(valor, mi.getMin(), mi.getMax());
 
-                listaAlertas.add(
-                        new Alerta(dtHora, valor, componente, macAdress, identificacaoMainframe)
-                );
+                if (!gravidade.equalsIgnoreCase("Normal")) {
+
+                    ConexaoBd.inserirAlerta(conn, dtHora, valor, mi.getIdMetrica());
+
+                    listaAlertas.add(
+                            new Alerta(dtHora, valor, componente, macAdress, identificacaoMainframe)
+                    );
+                }
+                // ------------------------------------------
 
             } catch (Exception e) {
                 System.err.println("Erro ao converter valor numérico: " + String.join(";", linha));
