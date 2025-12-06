@@ -99,6 +99,7 @@ public class DetalhesArmazenamento {
                     System.err.println("erro consultando banco: " + e.getMessage());
                 }
 
+                //teste
                 boolean alerta = (usoPct < min || usoPct > max);
 
                 Double crescimentoDiario = calcAumento(histDisco);
