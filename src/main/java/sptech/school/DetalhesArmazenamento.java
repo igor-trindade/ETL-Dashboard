@@ -87,13 +87,13 @@ public class DetalhesArmazenamento {
                     fabricante = info.getOrDefault("fabricante", "").toString();
                     modelo = info.getOrDefault("modelo", "").toString();
 
-                    Map<String, ConexaoBd.MetricaInfo> limites = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
-                    // pega limites do primeiro componente
-                    if (!limites.isEmpty()) {
-                        ConexaoBd.MetricaInfo metrica = limites.values().iterator().next();
-                        min = metrica.getMin();
-                        max = metrica.getMax();
-                    }
+//                    Map<String, ConexaoBd.MetricaInfo> limites = ConexaoBd.buscarLimitesMetricas(conn, macAdress);
+//                    // pega limites do primeiro componente
+//                    if (!limites.isEmpty()) {
+//                        ConexaoBd.MetricaInfo metrica = limites.values().iterator().next();
+//                        min = metrica.getMin();
+//                        max = metrica.getMax();
+//                    }
 
                 } catch (SQLException e) {
                     System.err.println("erro consultando banco: " + e.getMessage());
