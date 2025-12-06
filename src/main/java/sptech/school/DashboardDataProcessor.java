@@ -261,15 +261,18 @@ public class DashboardDataProcessor {
         // RTO: target fixa => 120 min ; atual = maior atualMinutes do tempoSolucaoPeriodo
         Map<String, Object> rto = new LinkedHashMap<>();
         rto.put("targetMinutes", TARGET_ALTA_MIN);
-        int atualRto = (int) (Double) tempoSolucaoPeriodo.values().stream()
-                .filter( v -> v instanceof Map)
-                .map(m -> {
-                    return (Map<?, ?>) m;
-                })
+        int atualRto = (int) tempoSolucaoPeriodo.values().stream()
+                .filter(v -> v instanceof Map)
+                .map(m -> (Map<?, ?>) m)
                 .mapToDouble(m -> {
-                    return ((Number) ((Map<?, ?>) m).getOrDefault("atualMinutes", 0.0)).doubleValue();
+                    Object valObj = m.get("atualMinutes");
+                    return (valObj instanceof Number)
+                            ? ((Number) valObj).doubleValue()
+                            : 0.0; // fallback seguro
                 })
-                .max().orElse(TARGET_ALTA_MIN);
+                .max()
+                .orElse((double) TARGET_ALTA_MIN);
+
         rto.put("atualMinutes", atualRto);
 
         periodoObj.put("kpis", kpis);
@@ -327,36 +330,68 @@ public class DashboardDataProcessor {
     }
 
     private static Map<String, Object> calcularTempoSolucaoPeriodoAggregate(Map<String, Object> mainframesMap) {
-        // percorre mainframes para achar máximos e produzir um tempoSolucao agregado
+
         int maxAlta = 0, maxMedia = 0, maxBaixa = 0;
+
         for (Object v : mainframesMap.values()) {
+
             if (!(v instanceof Map)) continue;
             Map<?, ?> mf = (Map<?, ?>) v;
-            Map<?, ?> tempo = (Map<?, ?>) mf.get("tempoSolucao");
-            if (tempo == null) continue;
-            Map<?, ?> alta = (Map<?, ?>) tempo.get("alta");
-            Map<?, ?> media = (Map<?, ?>) tempo.get("media");
-            Map<?, ?> baixa = (Map<?, ?>) tempo.get("baixa");
-            if (alta != null) maxAlta = Math.max(maxAlta, ((Number) alta.getOrDefault("atualMinutes", 0)).intValue());
-            if (media != null) maxMedia = Math.max(maxMedia, ((Number) media.getOrDefault("atualMinutes", 0)).intValue());
-            if (baixa != null) maxBaixa = Math.max(maxBaixa, ((Number) baixa.getOrDefault("atualMinutes", 0)).intValue());
+
+            Object tempoObj = mf.get("tempoSolucao");
+            if (!(tempoObj instanceof Map)) continue;
+
+            Map<?, ?> tempo = (Map<?, ?>) tempoObj;
+
+            // --- ALTA ---
+            Object altaObj = tempo.get("alta");
+            if (altaObj instanceof Map) {
+                Map<?, ?> alta = (Map<?, ?>) altaObj;
+                Object valObj = alta.get("atualMinutes");
+                int val = (valObj instanceof Number) ? ((Number) valObj).intValue() : 0;
+                maxAlta = Math.max(maxAlta, val);
+            }
+
+            // --- MÉDIA ---
+            Object mediaObj = tempo.get("media");
+            if (mediaObj instanceof Map) {
+                Map<?, ?> media = (Map<?, ?>) mediaObj;
+                Object valObj = media.get("atualMinutes");
+                int val = (valObj instanceof Number) ? ((Number) valObj).intValue() : 0;
+                maxMedia = Math.max(maxMedia, val);
+            }
+
+            // --- BAIXA ---
+            Object baixaObj = tempo.get("baixa");
+            if (baixaObj instanceof Map) {
+                Map<?, ?> baixa = (Map<?, ?>) baixaObj;
+                Object valObj = baixa.get("atualMinutes");
+                int val = (valObj instanceof Number) ? ((Number) valObj).intValue() : 0;
+                maxBaixa = Math.max(maxBaixa, val);
+            }
         }
 
         Map<String, Object> result = new LinkedHashMap<>();
+
         Map<String, Object> a = new LinkedHashMap<>();
         a.put("targetMinutes", TARGET_ALTA_MIN);
         a.put("atualMinutes", Math.max(maxAlta, TARGET_ALTA_MIN));
+
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("targetMinutes", TARGET_MEDIA_MIN);
         m.put("atualMinutes", Math.max(maxMedia, TARGET_MEDIA_MIN));
+
         Map<String, Object> b = new LinkedHashMap<>();
         b.put("targetMinutes", TARGET_BAIXA_MIN);
         b.put("atualMinutes", Math.max(maxBaixa, TARGET_BAIXA_MIN));
+
         result.put("alta", a);
         result.put("media", m);
         result.put("baixa", b);
+
         return result;
     }
+
 
     private static double calcularDisponibilidade(double avgCpu, double avgRam, double avgDisco) {
         // heurística simples: maior uso -> menor disponibilidade
