@@ -64,7 +64,6 @@ public class ConexaoAws {
         int ano  = hoje.getYear();
 
         String diretorio = empresa + "/" + mac + "/"+dia + mes + ano + "/" + nomeArquivo;
-        //String diretorio = empresa + "/" + mac + "/"  + nomeArquivo
         System.out.println(diretorio);
 
         List<String[]> linhas = new ArrayList<>();
@@ -136,9 +135,9 @@ public class ConexaoAws {
 
         } catch (NoSuchKeyException e) {
             // Retorna lista vazia (linhas) se o arquivo não existir (NoSuchKey)
-            System.out.println("⚠️ Arquivo não encontrado (NoSuchKey): " + keyCaminho);
+            System.out.println("⚠ Arquivo não encontrado (NoSuchKey): " + keyCaminho);
         } catch (Exception e) {
-            System.err.println("❌ Erro ao ler arquivo do S3 em " + keyCaminho + ": " + e.getMessage());
+            System.err.println(" Erro ao ler arquivo do S3 em " + keyCaminho + ": " + e.getMessage());
             // Se der erro por outro motivo, retorna a lista vazia
         }
 
@@ -147,33 +146,33 @@ public class ConexaoAws {
 
     public static List<String[]> lerCsvLocal(String nomeArquivo) {
 
-            List<String[]> linhas = new ArrayList<>();
+        List<String[]> linhas = new ArrayList<>();
 
-            try (BufferedReader reader = new BufferedReader(
-                    new FileReader(nomeArquivo))) {
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader(nomeArquivo))) {
 
-                String linha;
+            String linha;
 
-                while ((linha = reader.readLine()) != null) {
-                    linhas.add(linha.split(";")); // separa do mesmo jeito
-                }
-
-                System.out.println("Arquivo lido LOCALMENTE: " + nomeArquivo);
-
-            } catch (Exception e) {
-
-                System.err.println("Erro ao ler arquivo local: " + e.getMessage());
+            while ((linha = reader.readLine()) != null) {
+                linhas.add(linha.split(";")); // separa do mesmo jeito
             }
 
-            return linhas;
-   }
+            System.out.println("Arquivo lido LOCALMENTE: " + nomeArquivo);
+
+        } catch (Exception e) {
+
+            System.err.println("Erro ao ler arquivo local: " + e.getMessage());
+        }
+
+        return linhas;
+    }
 
     public static List<String> buscarMac(Connection conn, String empresa) throws SQLException {
-String sql = "SELECT m.macAdress\n" +
-"            FROM empresa e\n" +
-"            JOIN setor s ON s.fkempresa = e.id\n" +
-"            JOIN mainframe m ON m.fksetor = s.id\n" +
-"            WHERE e.id = ?;";
+        String sql = "SELECT m.macAdress\n" +
+                "            FROM empresa e\n" +
+                "            JOIN setor s ON s.fkempresa = e.id\n" +
+                "            JOIN mainframe m ON m.fksetor = s.id\n" +
+                "            WHERE e.id = ?;";
 
         List<String> lista = new ArrayList<>();
 
@@ -230,11 +229,22 @@ String sql = "SELECT m.macAdress\n" +
     // ACHAR BUCKET PELO NOME
     public static String pegarBucket(String tipo) {
 
-        ListBucketsResponse response = s3.listBuckets();
-        for (Bucket b : response.buckets()) {
-            if (b.name().toLowerCase().contains(tipo.toLowerCase())) {
-                return b.name();
+        if (tipo.equalsIgnoreCase("client")) {
+            return "synkro-client";
+        } else if (tipo.equalsIgnoreCase("trusted")) {
+            return "synkro-trusted";
+        }
+
+
+        try {
+            ListBucketsResponse response = s3.listBuckets();
+            for (Bucket b : response.buckets()) {
+                if (b.name().toLowerCase().contains(tipo.toLowerCase())) {
+                    return b.name();
+                }
             }
+        } catch (Exception e) {
+            System.err.println("Aviso: Falha ao listar buckets ( falta de credenciais): " + e.getMessage());
         }
 
         throw new RuntimeException("Bucket do tipo '" + tipo + "' não encontrado!");

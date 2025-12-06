@@ -32,7 +32,7 @@ public class DashboardDataProcessor {
     private static final int INDICE_DISCO_WRITE_COUNT = 9;
     private static final int INDICE_DISCO_LATENCIA = 10;
     private static final int INDICE_PROCESSOS_INICIO = 11; // Início dos dados de processos (nome1, cpu_perc1, mem_perc1)
-    private static final int NUM_PROCESSOS = 10;
+    private static final int NUM_PROCESSOS = 9;
     private static final int DADOS_POR_PROCESSO = 3; // nome, cpu_perc, mem_perc
 
     public static void main(String[] args) {
@@ -43,7 +43,7 @@ public class DashboardDataProcessor {
         try {
             dadosMainframe = lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
         } catch (IOException e) {
-            System.err.println("❌ Erro ao ler arquivo local: " + e.getMessage());
+            System.err.println(" Erro ao ler arquivo local: " + e.getMessage());
             return;
         }
 
@@ -53,7 +53,9 @@ public class DashboardDataProcessor {
         }
 
         List<Map<String, Object>> dadosProcessados = processarDados(dadosMainframe);
-        salvarJsonLocal(dadosProcessados, ARQUIVO_SAIDA_JSON);
+        String json = gerarJson(dadosProcessados);
+        salvarJsonLocal(json, ARQUIVO_SAIDA_JSON);
+        ConexaoAws.salvarJsonNoS3(ARQUIVO_SAIDA_JSON, json);
     }
     public void executar(){
         System.out.println("Iniciando processamento de dados para o Dashboard...");
@@ -63,7 +65,7 @@ public class DashboardDataProcessor {
         try {
             dadosMainframe = lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
         } catch (IOException e) {
-            System.err.println("❌ Erro ao ler arquivo local: " + e.getMessage());
+            System.err.println(" Erro ao ler arquivo local: " + e.getMessage());
             return;
         }
 
@@ -73,7 +75,9 @@ public class DashboardDataProcessor {
         }
 
         List<Map<String, Object>> dadosProcessados = processarDados(dadosMainframe);
-        salvarJsonLocal(dadosProcessados, ARQUIVO_SAIDA_JSON);
+        String json = gerarJson(dadosProcessados);
+        salvarJsonLocal(json, ARQUIVO_SAIDA_JSON);
+        ConexaoAws.salvarJsonNoS3(ARQUIVO_SAIDA_JSON, json);
     }
     private static List<String[]> lerArquivoCsvLocal(String caminhoArquivo) throws IOException {
         List<String[]> dados = new ArrayList<>();
@@ -129,9 +133,12 @@ public class DashboardDataProcessor {
         return listaDados;
     }
 
-    private static void salvarJsonLocal(List<Map<String, Object>> listaDados, String caminhoArquivo) {
+    private static String gerarJson(List<Map<String, Object>> listaDados) {
+        return gson.toJson(listaDados);
+    }
+
+    private static void salvarJsonLocal(String json, String caminhoArquivo) {
         try (FileWriter writer = new FileWriter(caminhoArquivo)) {
-            String json = gson.toJson(listaDados);
             writer.write(json);
             System.out.println("JSON de dados do Dashboard salvo em: " + caminhoArquivo);
         } catch (IOException e) {
