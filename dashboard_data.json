@@ -1,68 +1,158 @@
-[
-  {
-    "macAdress": "166250251803552",
-    "timestamp": "2025-11-21 12:05:00",
-    "identificacao_mainframe": "Hideo",
-    "uso_cpu_total_perc": "13.65",
-    "uso_ram_total_perc": "86.80",
-    "uso_disco_total_perc": "63.50",
-    "disco_throughput_mbs": "1.51",
-    "disco_iops_total": "2.00",
-    "disco_read_count": "1",
-    "disco_write_count": "1",
-    "disco_latencia_ms": "500.55",
-    "processos": [
-      {
-        "nome": "System",
-        "cpu_perc": "0.00",
-        "mem_perc": "0.02"
+{
+  "semana": {
+    "Hideo": {
+      "kpis": {
+        "totalAlertas": 1,
+        "muitoUrgentes": 1,
+        "urgentes": 2,
+        "emergencias": 4,
+        "disponibilidade": 99.2,
+        "componenteCritico": "CPU",
+        "picoCpu": 89.86
       },
-      {
-        "nome": "svchost.exe",
-        "cpu_perc": "0.00",
-        "mem_perc": "4.34"
+      "componentes": {
+        "cpu": {
+          "media": 35.13,
+          "max": 89.86,
+          "min": 0.00
+        },
+        "ram": {
+          "media": 82.40,
+          "max": 86.80,
+          "min": 75.60
+        },
+        "disco": {
+          "media": 63.72,
+          "max": 63.80,
+          "min": 63.50
+        }
       },
-      {
-        "nome": "Code.exe",
-        "cpu_perc": "0.00",
-        "mem_perc": "21.33"
+      "tempoSolucao": {
+        "alta": { "atualMinutes": 17 },
+        "media": { "atualMinutes": 8 },
+        "baixa": { "atualMinutes": 3 }
       },
-      {
-        "nome": "chrome.exe",
-        "cpu_perc": "0.00",
-        "mem_perc": "14.36"
-      },
-      {
-        "nome": "MsMpEng.exe",
-        "cpu_perc": "0.00",
-        "mem_perc": "1.65"
-      },
-      {
-        "nome": "mysqld.exe",
-        "cpu_perc": "0.00",
-        "mem_perc": "0.02"
-      },
-      {
-        "nome": "python.exe",
-        "cpu_perc": "6.83",
-        "mem_perc": "1.88"
-      },
-      {
-        "nome": "Taskmgr.exe",
-        "cpu_perc": "6.83",
-        "mem_perc": "0.55"
-      },
-      {
-        "nome": "explorer.exe",
-        "cpu_perc": "0.00",
-        "mem_perc": "1.05"
-      },
-      {
-        "nome": "N/A",
-        "cpu_perc": "N/A",
-        "mem_perc": "N/A"
+      "rto": {
+        "estimadoMinutos": 17,
+        "metricaUsada": "pico de CPU e desvio médio"
       }
-    ]
+    }
+  },
+  "mes": {
+    "Hideo": {
+      "kpis": {
+        "totalAlertas": 1,
+        "muitoUrgentes": 1,
+        "urgentes": 2,
+        "emergencias": 4,
+        "disponibilidade": 99.2,
+        "componenteCritico": "CPU",
+        "picoCpu": 89.86
+      },
+      "componentes": {
+        "cpu": {
+          "media": 35.13,
+          "max": 89.86,
+          "min": 0.00
+        },
+        "ram": {
+          "media": 82.40,
+          "max": 86.80,
+          "min": 75.60
+        },
+        "disco": {
+          "media": 63.72,
+          "max": 63.80,
+          "min": 63.50
+        }
+      },
+      "tempoSolucao": {
+        "alta": { "atualMinutes": 17 },
+        "media": { "atualMinutes": 8 },
+        "baixa": { "atualMinutes": 3 }
+      },
+      "rto": {
+        "estimadoMinutos": 17,
+        "metricaUsada": "pico de CPU e desvio médio"
+      }
+    }
+  },
+  "semestre": {
+    "Hideo": {
+      "kpis": {
+        "totalAlertas": 1,
+        "muitoUrgentes": 1,
+        "urgentes": 2,
+        "emergencias": 4,
+        "disponibilidade": 99.2,
+        "componenteCritico": "CPU",
+        "picoCpu": 89.86
+      },
+      "componentes": {
+        "cpu": {
+          "media": 35.13,
+          "max": 89.86,
+          "min": 0.00
+        },
+        "ram": {
+          "media": 82.40,
+          "max": 86.80,
+          "min": 75.60
+        },
+        "disco": {
+          "media": 63.72,
+          "max": 63.80,
+          "min": 63.50
+        }
+      },
+      "tempoSolucao": {
+        "alta": { "atualMinutes": 17 },
+        "media": { "atualMinutes": 8 },
+        "baixa": { "atualMinutes": 3 }
+      },
+      "rto": {
+        "estimadoMinutos": 17,
+        "metricaUsada": "pico de CPU e desvio médio"
+      }
+    }
+  },
+  "ano": {
+    "Hideo": {
+      "kpis": {
+        "totalAlertas": 1,
+        "muitoUrgentes": 1,
+        "urgentes": 2,
+        "emergencias": 4,
+        "disponibilidade": 99.2,
+        "componenteCritico": "CPU",
+        "picoCpu": 89.86
+      },
+      "componentes": {
+        "cpu": {
+          "media": 35.13,
+          "max": 89.86,
+          "min": 0.00
+        },
+        "ram": {
+          "media": 82.40,
+          "max": 86.80,
+          "min": 75.60
+        },
+        "disco": {
+          "media": 63.72,
+          "max": 63.80,
+          "min": 63.50
+        }
+      },
+      "tempoSolucao": {
+        "alta": { "atualMinutes": 17 },
+        "media": { "atualMinutes": 8 },
+        "baixa": { "atualMinutes": 3 }
+      },
+      "rto": {
+        "estimadoMinutos": 17,
+        "metricaUsada": "pico de CPU e desvio médio"
+      }
+    }
   }
-
-]
+}
