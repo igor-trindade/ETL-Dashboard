@@ -138,6 +138,7 @@ String sql = "SELECT m.macAdress\n" +
         String password = dotenv.get("DB_PASSWORD");
         return DriverManager.getConnection(url, user, password);
     }
+
     // Busca os limites MIN e MAX configurados na tabela metrica
     public static Map<String, MetricaInfo> buscarLimitesMetricas(Connection conn, String macAdress)
             throws SQLException {

@@ -1,49 +1,6 @@
 [
   {
-    "mainframes": [
-      {
-        "tempoAlerta": "-47h -1m",
-        "disk": [
-          66.2,
-          66.2,
-          66.2,
-          66.2,
-          66.2
-        ],
-        "latencia": 3.39,
-        "iops": 295.0,
-        "cpu": [
-          54.28,
-          30.3,
-          18.46,
-          48.74,
-          44.71
-        ],
-        "Fabricante": "IBM",
-        "eventos": 147,
-        "throughput": 5.59,
-        "modelo": "Z16",
-        "metricas": [
-          "0.00",
-          "68.00",
-          "Disco Rígido",
-          "0.00",
-          "10.00",
-          "Processador",
-          "0.00",
-          "90.00",
-          "Memória RAM"
-        ],
-        "mac": "269166201749049",
-        "ram": [
-          32.39,
-          25.74,
-          24.24,
-          20.38,
-          16.55
-        ]
-      }
-    ],
+    "mainframes": [],
     "empresa": "1"
   },
   {
