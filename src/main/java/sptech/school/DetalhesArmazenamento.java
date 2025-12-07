@@ -36,20 +36,62 @@ public class DetalhesArmazenamento {
             System.err.println("erro ao conectar no banco: " + e.getMessage());
         }
 
+        // Lista para consolidar todas as empresas
+        List<Map<String, Object>> todasAsEmpresas = new ArrayList<>();
+
         for (String empresa : idEmpresas) {
 
             List<Map<String, Object>> listaMainframes = new ArrayList<>();
 
             List<String> dirs = ConexaoAws.listarDiretorios(empresa);
 
+            System.out.println("Processando empresa: " + empresa + " | Diretórios encontrados: " + dirs.size());
+
             for (String dir : dirs) {
 
-                String mac = dir.replace("1/", "").replace("/", "");
-                List<String[]> linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac, empresa, "trusted.csv");
+                String prefixo = empresa + "/";
+                String mac = dir.startsWith(prefixo) ? dir.substring(prefixo.length()).replace("/", "") : dir.replace("1/", "").replace("/", "");
 
-                if (linhas.isEmpty()) continue;
+                List<String[]> linhas = ConexaoAws.lerArquivoGeralCsvDoTrusted(empresa, mac);
+                String fonte = "GERAL";
+
+                if (linhas == null || linhas.isEmpty()) {
+                    linhas = ConexaoAws.lerArquivoCsvDoTrustedDiario(empresa, mac, "trusted.csv");
+                    fonte = "DIARIO";
+                }
+
+                if (linhas == null || linhas.isEmpty()) {
+                    linhas = ConexaoAws.lerArquivoCsvDoTrusted(mac, empresa, "trusted.csv");
+                    fonte = "PADRAO";
+                }
+
+                int linhasCount = linhas == null ? 0 : linhas.size();
+                System.out.println("  MAC: " + mac + " | Fonte: " + fonte + " | Linhas lidas: " + linhasCount);
+
+                if (linhas.isEmpty()) {
+                    System.out.println("    AVISO: Nenhuma linha encontrada para MAC " + mac);
+                    continue;
+                }
+
+                String primeiraCelula = linhas.get(0).length > 0 ? linhas.get(0)[0].toLowerCase() : "";
+                if (primeiraCelula.equalsIgnoreCase("macadress") ||
+                        primeiraCelula.equalsIgnoreCase("mac") ||
+                        (primeiraCelula.equalsIgnoreCase("dt_hora") || primeiraCelula.equalsIgnoreCase("hora"))) {
+                    System.out.println("    Info: cabeçalho detectado e removido para MAC " + mac + " (" + primeiraCelula + ")");
+                    linhas.remove(0);
+                }
+
+                if (linhas.isEmpty()) {
+                    System.out.println("    AVISO: Após remover cabeçalho, não há linhas para MAC " + mac);
+                    continue;
+                }
 
                 int ultimo = linhas.size() - 1;
+
+                if (linhas.get(ultimo).length < 9) {
+                    System.out.println("    AVISO: Última linha incompleta para MAC " + mac + " (células encontradas: " + linhas.get(ultimo).length + ")");
+                    continue;
+                }
 
                 String macAdress = linhas.get(ultimo)[0];
                 Double usoPct = parseDouble(linhas.get(ultimo)[3]);
@@ -87,7 +129,7 @@ public class DetalhesArmazenamento {
                     fabricante = info.getOrDefault("fabricante", "").toString();
                     modelo = info.getOrDefault("modelo", "").toString();
 
-                    // Pegar min/max diretamente de ConexaoBd.buscarMinMax
+                    // Pegar min/max
                     List<String> minMax = ConexaoBd.buscarMinMax(conn, macAdress);
                     if (minMax != null && minMax.size() >= 2) {
                         try { min = Double.parseDouble(minMax.get(0)); } catch (Exception ex) { min = 0.0; }
@@ -98,8 +140,6 @@ public class DetalhesArmazenamento {
                     System.err.println("erro consultando banco: " + e.getMessage());
                 }
 
-
-                //teste
                 boolean alerta = (usoPct < min || usoPct > max);
 
                 Double crescimentoDiario = calcAumento(histDisco);
@@ -108,8 +148,11 @@ public class DetalhesArmazenamento {
                 Double diasAte95;
                 if (crescimentoDiario > 0) {
                     diasAte95 = (95.0 - usoPct) / crescimentoDiario;
+                    if (diasAte95.isInfinite() || diasAte95.isNaN()) {
+                        diasAte95 = null;
+                    }
                 } else {
-                    diasAte95 = Double.POSITIVE_INFINITY;
+                    diasAte95 = null;
                 }
 
                 Integer picoIops = Collections.max(histIops);
@@ -150,18 +193,25 @@ public class DetalhesArmazenamento {
             empresaJson.put("empresa", empresa);
             empresaJson.put("mainframes", listaMainframes);
 
-            String json = gson.toJson(empresaJson);
-            String nomeArq = "detalhesArmazenamento-" + empresa + ".json";
-
-            try (FileWriter writer = new FileWriter(nomeArq)) {
-                writer.write(json);
-                System.out.println("JSON salvo em: " + nomeArq);
-            } catch (IOException e) {
-                System.err.println("erro salvando JSON local: " + e.getMessage());
-            }
-
-            ConexaoAws.salvarJsonNoS3(nomeArq, json);
+            todasAsEmpresas.add(empresaJson);
         }
+
+        Map<String, Object> jsonConsolidado = new HashMap<>();
+        jsonConsolidado.put("empresas", todasAsEmpresas);
+
+        String json = gson.toJson(jsonConsolidado);
+        String nomeArq = "detalhesArmazenamento.json";
+
+        try (FileWriter writer = new FileWriter(nomeArq)) {
+            writer.write(json);
+            System.out.println("JSON consolidado salvo em: " + nomeArq);
+        } catch (IOException e) {
+            System.err.println("erro salvando JSON local: " + e.getMessage());
+        }
+
+        // Salvar no S3
+        ConexaoAws.salvarJsonNoS3(nomeArq, json);
+        System.out.println("JSON consolidado salvo no S3: " + nomeArq);
     }
 
     private static Double parseDouble(String v) {

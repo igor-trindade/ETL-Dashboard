@@ -27,7 +27,6 @@ public class ConexaoBd {
             System.err.println("Erro na conexão: " + e.getMessage());
         }
 
-
         try (Connection conn = DriverManager.getConnection(
                 Dotenv.load().get("DB_URL"),
                 Dotenv.load().get("DB_USER"),
