@@ -37,7 +37,9 @@ public class DashboardProcesso {
             List<String> dirs = ConexaoAws.listarDiretorios(empresa);
             for (String dir : dirs) {
 
-                String mac = dir.replace("1/", "").replace("/", "");
+                String prefixo = empresa + "/";
+                String mac = dir.substring(prefixo.length()).replace("/", "");
+
                 //linhas
                 List<String[]> linhas = ConexaoAws.lerArquivoGeralCsvDoTrusted(empresa, mac);
 
