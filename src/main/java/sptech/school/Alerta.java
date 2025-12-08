@@ -1,7 +1,6 @@
 package sptech.school;
 
 import java.util.Locale;
-
 public class Alerta {
 
     private String dtHora;

@@ -566,4 +566,52 @@ public class DashboardDataProcessor {
 
     private enum PeriodFilter { SEMANA, MES, SEMESTRE, ANO }
 
+
+    public void executar(){
+        System.out.println("Iniciando DashboardDataProcessorV2...");
+
+        List<String[]> linhas;
+        try {
+            linhas = lerArquivoCsvLocal(NOME_ARQUIVO_DADOS);
+        } catch (IOException e) {
+            System.err.println("Erro ao ler arquivo: " + e.getMessage());
+            return;
+        }
+
+        if (linhas == null || linhas.isEmpty()) {
+            System.out.println("Nenhum dado encontrado.");
+            return;
+        }
+
+        // Conversão para registros estruturados
+        List<Record> records = linhas.stream()
+                .map(DashboardDataProcessor::parseLinha)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (records.isEmpty()) {
+            System.out.println("Nenhum registro válido após parsing.");
+            return;
+        }
+
+        // Agrupa por período (semana, mes, semestre, ano)
+        Map<String, Object> dashboard = new LinkedHashMap<>();
+        dashboard.put("semana", gerarPeriodo(records, PeriodFilter.SEMANA));
+        dashboard.put("mes", gerarPeriodo(records, PeriodFilter.MES));
+        dashboard.put("semestre", gerarPeriodo(records, PeriodFilter.SEMESTRE));
+        dashboard.put("ano", gerarPeriodo(records, PeriodFilter.ANO));
+
+        String json = gson.toJson(dashboard);
+        salvarJsonLocal(json, ARQUIVO_SAIDA_JSON);
+
+        // Chamada para a integração S3
+        try {
+            ConexaoAws.salvarJsonNoS3(ARQUIVO_SAIDA_JSON, json);
+            System.out.println("JSON enviado para S3 via ConexaoAws.");
+        } catch (Exception ex) {
+            System.err.println("Falha ao enviar para S3: " + ex.getMessage());
+        }
+
+        System.out.println("Processamento finalizado. Arquivo gerado: " + ARQUIVO_SAIDA_JSON);
+    }
 }

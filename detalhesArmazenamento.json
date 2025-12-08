@@ -1,14 +1,43 @@
-[
-  {
-    "mainframes": [],
-    "empresa": "1"
-  },
-  {
-    "mainframes": [],
-    "empresa": "2"
-  },
-  {
-    "mainframes": [],
-    "empresa": "3"
-  }
-]
+{
+  "empresas": [
+    {
+      "mainframes": [
+        {
+          "iops_total": 44,
+          "historico_datas": [
+            "2025-12-07 21:30:12"
+          ],
+          "alerta": false,
+          "historico_latencia": [
+            1471.0
+          ],
+          "pico_latencia": 1471.0,
+          "max": 9999.0,
+          "iops_leitura": 51,
+          "latencia_ms": 1471.0,
+          "historico_iops": [
+            44
+          ],
+          "pico_iops": 44,
+          "uso_disco_percentual": 8.23,
+          "throughput_mbs": 18.02,
+          "crescimento_30dias_pct": 0.0,
+          "modelo": "",
+          "mac": "44033349251011",
+          "iops_escrita": 1505,
+          "min": 0.0,
+          "crescimento_diario_pct": 0.0,
+          "historico_disco": [
+            8.23
+          ],
+          "fabricante": ""
+        }
+      ],
+      "empresa": "1"
+    },
+    {
+      "mainframes": [],
+      "empresa": "2"
+    }
+  ]
+}

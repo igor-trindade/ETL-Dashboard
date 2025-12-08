@@ -27,7 +27,6 @@ public class ConexaoBd {
             System.err.println("Erro na conexão: " + e.getMessage());
         }
 
-
         try (Connection conn = DriverManager.getConnection(
                 Dotenv.load().get("DB_URL"),
                 Dotenv.load().get("DB_USER"),
@@ -164,7 +163,6 @@ String sql = "SELECT c.nome AS componente, m.id AS idMetrica, m.min, m.max\n" +
 
             limites.put(componente, new MetricaInfo(idMetrica, min, max));
         }
-
         return limites;
     }
 

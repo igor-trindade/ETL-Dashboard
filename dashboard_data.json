@@ -1,158 +1,416 @@
 {
   "semana": {
-    "Hideo": {
-      "kpis": {
-        "totalAlertas": 1,
-        "muitoUrgentes": 1,
-        "urgentes": 2,
-        "emergencias": 4,
-        "disponibilidade": 99.2,
-        "componenteCritico": "CPU",
-        "picoCpu": 89.86
+    "kpis": {
+      "total_alertas": 0,
+      "mturge": 0,
+      "urge": 0,
+      "emerge": 0,
+      "disponibilidade": 100.0
+    },
+    "mainframes": {},
+    "componentes": {
+      "cpu": {
+        "avg": 0.0,
+        "max": 0.0,
+        "min": 0.0
       },
-      "componentes": {
-        "cpu": {
-          "media": 35.13,
-          "max": 89.86,
-          "min": 0.00
-        },
-        "ram": {
-          "media": 82.40,
-          "max": 86.80,
-          "min": 75.60
-        },
-        "disco": {
-          "media": 63.72,
-          "max": 63.80,
-          "min": 63.50
-        }
+      "ram": {
+        "avg": 0.0,
+        "max": 0.0,
+        "min": 0.0
       },
-      "tempoSolucao": {
-        "alta": { "atualMinutes": 17 },
-        "media": { "atualMinutes": 8 },
-        "baixa": { "atualMinutes": 3 }
-      },
-      "rto": {
-        "estimadoMinutos": 17,
-        "metricaUsada": "pico de CPU e desvio médio"
+      "disco": {
+        "avg": 0.0,
+        "max": 0.0,
+        "min": 0.0
       }
+    },
+    "tempoSolucao": {
+      "alta": {
+        "targetMinutes": 120,
+        "atualMinutes": 120
+      },
+      "media": {
+        "targetMinutes": 240,
+        "atualMinutes": 240
+      },
+      "baixa": {
+        "targetMinutes": 480,
+        "atualMinutes": 480
+      }
+    },
+    "rto": {
+      "targetMinutes": 120,
+      "atualMinutes": 480
     }
   },
   "mes": {
-    "Hideo": {
-      "kpis": {
-        "totalAlertas": 1,
-        "muitoUrgentes": 1,
-        "urgentes": 2,
-        "emergencias": 4,
-        "disponibilidade": 99.2,
-        "componenteCritico": "CPU",
-        "picoCpu": 89.86
-      },
-      "componentes": {
-        "cpu": {
-          "media": 35.13,
-          "max": 89.86,
-          "min": 0.00
+    "kpis": {
+      "total_alertas": 478,
+      "mturge": 28,
+      "urge": 292,
+      "emerge": 158,
+      "disponibilidade": 94.34
+    },
+    "mainframes": {
+      "Hideo": {
+        "nome": "Hideo",
+        "registros": 306,
+        "avgCpuPerc": 36.67,
+        "avgRamPerc": 85.06,
+        "avgDiscoPerc": 63.84,
+        "alertas_total": 478,
+        "breakdown": {
+          "mturge": 28,
+          "urge": 292,
+          "emerge": 158
         },
-        "ram": {
-          "media": 82.40,
-          "max": 86.80,
-          "min": 75.60
+        "componentes_alerts": {
+          "cpu_alerts": 38,
+          "ram_alerts": 290,
+          "disco_alerts": 155
         },
-        "disco": {
-          "media": 63.72,
-          "max": 63.80,
-          "min": 63.50
-        }
-      },
-      "tempoSolucao": {
-        "alta": { "atualMinutes": 17 },
-        "media": { "atualMinutes": 8 },
-        "baixa": { "atualMinutes": 3 }
-      },
-      "rto": {
-        "estimadoMinutos": 17,
-        "metricaUsada": "pico de CPU e desvio médio"
+        "componente_critico": "RAM",
+        "tempoSolucao": {
+          "alta": {
+            "targetMinutes": 120,
+            "atualMinutes": 204
+          },
+          "media": {
+            "targetMinutes": 240,
+            "atualMinutes": 336
+          },
+          "baixa": {
+            "targetMinutes": 480,
+            "atualMinutes": 576
+          }
+        },
+        "top_processos_cpu": [
+          {
+            "nome": "Code.exe",
+            "cpuPercSum": 5052.13
+          },
+          {
+            "nome": "Taskmgr.exe",
+            "cpuPercSum": 2520.45
+          },
+          {
+            "nome": "chrome.exe",
+            "cpuPercSum": 1122.06
+          },
+          {
+            "nome": "System",
+            "cpuPercSum": 849.08
+          },
+          {
+            "nome": "MsMpEng.exe",
+            "cpuPercSum": 730.15
+          }
+        ],
+        "top_processos_mem": [
+          {
+            "nome": "chrome.exe",
+            "memPercSum": 4535.91
+          },
+          {
+            "nome": "Code.exe",
+            "memPercSum": 2619.41
+          },
+          {
+            "nome": "svchost.exe",
+            "memPercSum": 1653.78
+          },
+          {
+            "nome": "MsMpEng.exe",
+            "memPercSum": 599.23
+          },
+          {
+            "nome": "explorer.exe",
+            "memPercSum": 417.68
+          }
+        ]
       }
+    },
+    "componentes": {
+      "cpu": {
+        "avg": 36.67,
+        "max": 36.67,
+        "min": 36.67
+      },
+      "ram": {
+        "avg": 85.06,
+        "max": 85.06,
+        "min": 85.06
+      },
+      "disco": {
+        "avg": 63.84,
+        "max": 63.84,
+        "min": 63.84
+      }
+    },
+    "tempoSolucao": {
+      "alta": {
+        "targetMinutes": 120,
+        "atualMinutes": 204
+      },
+      "media": {
+        "targetMinutes": 240,
+        "atualMinutes": 336
+      },
+      "baixa": {
+        "targetMinutes": 480,
+        "atualMinutes": 576
+      }
+    },
+    "rto": {
+      "targetMinutes": 120,
+      "atualMinutes": 576
     }
   },
   "semestre": {
-    "Hideo": {
-      "kpis": {
-        "totalAlertas": 1,
-        "muitoUrgentes": 1,
-        "urgentes": 2,
-        "emergencias": 4,
-        "disponibilidade": 99.2,
-        "componenteCritico": "CPU",
-        "picoCpu": 89.86
-      },
-      "componentes": {
-        "cpu": {
-          "media": 35.13,
-          "max": 89.86,
-          "min": 0.00
+    "kpis": {
+      "total_alertas": 478,
+      "mturge": 28,
+      "urge": 292,
+      "emerge": 158,
+      "disponibilidade": 94.34
+    },
+    "mainframes": {
+      "Hideo": {
+        "nome": "Hideo",
+        "registros": 306,
+        "avgCpuPerc": 36.67,
+        "avgRamPerc": 85.06,
+        "avgDiscoPerc": 63.84,
+        "alertas_total": 478,
+        "breakdown": {
+          "mturge": 28,
+          "urge": 292,
+          "emerge": 158
         },
-        "ram": {
-          "media": 82.40,
-          "max": 86.80,
-          "min": 75.60
+        "componentes_alerts": {
+          "cpu_alerts": 38,
+          "ram_alerts": 290,
+          "disco_alerts": 155
         },
-        "disco": {
-          "media": 63.72,
-          "max": 63.80,
-          "min": 63.50
-        }
-      },
-      "tempoSolucao": {
-        "alta": { "atualMinutes": 17 },
-        "media": { "atualMinutes": 8 },
-        "baixa": { "atualMinutes": 3 }
-      },
-      "rto": {
-        "estimadoMinutos": 17,
-        "metricaUsada": "pico de CPU e desvio médio"
+        "componente_critico": "RAM",
+        "tempoSolucao": {
+          "alta": {
+            "targetMinutes": 120,
+            "atualMinutes": 204
+          },
+          "media": {
+            "targetMinutes": 240,
+            "atualMinutes": 336
+          },
+          "baixa": {
+            "targetMinutes": 480,
+            "atualMinutes": 576
+          }
+        },
+        "top_processos_cpu": [
+          {
+            "nome": "Code.exe",
+            "cpuPercSum": 5052.13
+          },
+          {
+            "nome": "Taskmgr.exe",
+            "cpuPercSum": 2520.45
+          },
+          {
+            "nome": "chrome.exe",
+            "cpuPercSum": 1122.06
+          },
+          {
+            "nome": "System",
+            "cpuPercSum": 849.08
+          },
+          {
+            "nome": "MsMpEng.exe",
+            "cpuPercSum": 730.15
+          }
+        ],
+        "top_processos_mem": [
+          {
+            "nome": "chrome.exe",
+            "memPercSum": 4535.91
+          },
+          {
+            "nome": "Code.exe",
+            "memPercSum": 2619.41
+          },
+          {
+            "nome": "svchost.exe",
+            "memPercSum": 1653.78
+          },
+          {
+            "nome": "MsMpEng.exe",
+            "memPercSum": 599.23
+          },
+          {
+            "nome": "explorer.exe",
+            "memPercSum": 417.68
+          }
+        ]
       }
+    },
+    "componentes": {
+      "cpu": {
+        "avg": 36.67,
+        "max": 36.67,
+        "min": 36.67
+      },
+      "ram": {
+        "avg": 85.06,
+        "max": 85.06,
+        "min": 85.06
+      },
+      "disco": {
+        "avg": 63.84,
+        "max": 63.84,
+        "min": 63.84
+      }
+    },
+    "tempoSolucao": {
+      "alta": {
+        "targetMinutes": 120,
+        "atualMinutes": 204
+      },
+      "media": {
+        "targetMinutes": 240,
+        "atualMinutes": 336
+      },
+      "baixa": {
+        "targetMinutes": 480,
+        "atualMinutes": 576
+      }
+    },
+    "rto": {
+      "targetMinutes": 120,
+      "atualMinutes": 576
     }
   },
   "ano": {
-    "Hideo": {
-      "kpis": {
-        "totalAlertas": 1,
-        "muitoUrgentes": 1,
-        "urgentes": 2,
-        "emergencias": 4,
-        "disponibilidade": 99.2,
-        "componenteCritico": "CPU",
-        "picoCpu": 89.86
-      },
-      "componentes": {
-        "cpu": {
-          "media": 35.13,
-          "max": 89.86,
-          "min": 0.00
+    "kpis": {
+      "total_alertas": 478,
+      "mturge": 28,
+      "urge": 292,
+      "emerge": 158,
+      "disponibilidade": 94.34
+    },
+    "mainframes": {
+      "Hideo": {
+        "nome": "Hideo",
+        "registros": 306,
+        "avgCpuPerc": 36.67,
+        "avgRamPerc": 85.06,
+        "avgDiscoPerc": 63.84,
+        "alertas_total": 478,
+        "breakdown": {
+          "mturge": 28,
+          "urge": 292,
+          "emerge": 158
         },
-        "ram": {
-          "media": 82.40,
-          "max": 86.80,
-          "min": 75.60
+        "componentes_alerts": {
+          "cpu_alerts": 38,
+          "ram_alerts": 290,
+          "disco_alerts": 155
         },
-        "disco": {
-          "media": 63.72,
-          "max": 63.80,
-          "min": 63.50
-        }
-      },
-      "tempoSolucao": {
-        "alta": { "atualMinutes": 17 },
-        "media": { "atualMinutes": 8 },
-        "baixa": { "atualMinutes": 3 }
-      },
-      "rto": {
-        "estimadoMinutos": 17,
-        "metricaUsada": "pico de CPU e desvio médio"
+        "componente_critico": "RAM",
+        "tempoSolucao": {
+          "alta": {
+            "targetMinutes": 120,
+            "atualMinutes": 204
+          },
+          "media": {
+            "targetMinutes": 240,
+            "atualMinutes": 336
+          },
+          "baixa": {
+            "targetMinutes": 480,
+            "atualMinutes": 576
+          }
+        },
+        "top_processos_cpu": [
+          {
+            "nome": "Code.exe",
+            "cpuPercSum": 5052.13
+          },
+          {
+            "nome": "Taskmgr.exe",
+            "cpuPercSum": 2520.45
+          },
+          {
+            "nome": "chrome.exe",
+            "cpuPercSum": 1122.06
+          },
+          {
+            "nome": "System",
+            "cpuPercSum": 849.08
+          },
+          {
+            "nome": "MsMpEng.exe",
+            "cpuPercSum": 730.15
+          }
+        ],
+        "top_processos_mem": [
+          {
+            "nome": "chrome.exe",
+            "memPercSum": 4535.91
+          },
+          {
+            "nome": "Code.exe",
+            "memPercSum": 2619.41
+          },
+          {
+            "nome": "svchost.exe",
+            "memPercSum": 1653.78
+          },
+          {
+            "nome": "MsMpEng.exe",
+            "memPercSum": 599.23
+          },
+          {
+            "nome": "explorer.exe",
+            "memPercSum": 417.68
+          }
+        ]
       }
+    },
+    "componentes": {
+      "cpu": {
+        "avg": 36.67,
+        "max": 36.67,
+        "min": 36.67
+      },
+      "ram": {
+        "avg": 85.06,
+        "max": 85.06,
+        "min": 85.06
+      },
+      "disco": {
+        "avg": 63.84,
+        "max": 63.84,
+        "min": 63.84
+      }
+    },
+    "tempoSolucao": {
+      "alta": {
+        "targetMinutes": 120,
+        "atualMinutes": 204
+      },
+      "media": {
+        "targetMinutes": 240,
+        "atualMinutes": 336
+      },
+      "baixa": {
+        "targetMinutes": 480,
+        "atualMinutes": 576
+      }
+    },
+    "rto": {
+      "targetMinutes": 120,
+      "atualMinutes": 576
     }
   }
 }

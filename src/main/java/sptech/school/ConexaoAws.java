@@ -64,6 +64,7 @@ public class ConexaoAws {
         int ano  = hoje.getYear();
 
         String diretorio = empresa + "/" + mac + "/"+dia + mes + ano + "/" + nomeArquivo;
+        //String diretorio = empresa + "/" + mac + "/"  + nomeArquivo
         System.out.println(diretorio);
 
         List<String[]> linhas = new ArrayList<>();
@@ -135,9 +136,9 @@ public class ConexaoAws {
 
         } catch (NoSuchKeyException e) {
             // Retorna lista vazia (linhas) se o arquivo não existir (NoSuchKey)
-            System.out.println("⚠ Arquivo não encontrado (NoSuchKey): " + keyCaminho);
+            System.out.println("⚠️ Arquivo não encontrado (NoSuchKey): " + keyCaminho);
         } catch (Exception e) {
-            System.err.println(" Erro ao ler arquivo do S3 em " + keyCaminho + ": " + e.getMessage());
+            System.err.println("❌ Erro ao ler arquivo do S3 em " + keyCaminho + ": " + e.getMessage());
             // Se der erro por outro motivo, retorna a lista vazia
         }
 
@@ -229,22 +230,11 @@ public class ConexaoAws {
     // ACHAR BUCKET PELO NOME
     public static String pegarBucket(String tipo) {
 
-        if (tipo.equalsIgnoreCase("client")) {
-            return "synkro-client";
-        } else if (tipo.equalsIgnoreCase("trusted")) {
-            return "synkro-trusted";
-        }
-
-
-        try {
-            ListBucketsResponse response = s3.listBuckets();
-            for (Bucket b : response.buckets()) {
-                if (b.name().toLowerCase().contains(tipo.toLowerCase())) {
-                    return b.name();
-                }
+        ListBucketsResponse response = s3.listBuckets();
+        for (Bucket b : response.buckets()) {
+            if (b.name().toLowerCase().contains(tipo.toLowerCase())) {
+                return b.name();
             }
-        } catch (Exception e) {
-            System.err.println("Aviso: Falha ao listar buckets ( falta de credenciais): " + e.getMessage());
         }
 
         throw new RuntimeException("Bucket do tipo '" + tipo + "' não encontrado!");

@@ -126,7 +126,6 @@ public class AlertaMainProcessorAgregado {
 }
 
     public void executar(){
-
         String modoExecucao = DOTENV.get("MODO_EXECUCAO", "SIMULADO");
 
         // Mapa para acumular a contagem agregada de todos os mainframes
