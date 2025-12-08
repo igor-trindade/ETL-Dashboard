@@ -20,38 +20,38 @@ public class DashboardDataProcessor {
     private static final DateTimeFormatter TS_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     // Índices das colunas (segundo seu header)
-    private static final int INDICE_MAC_ADRESS = 0;
-    private static final int INDICE_TIMESTAMP = 1;
-    private static final int INDICE_ID_MAINFRAME = 2;
-    private static final int INDICE_USO_CPU_TOTAL = 3;
-    private static final int INDICE_USO_RAM_TOTAL = 4;
-    private static final int INDICE_USO_DISCO_TOTAL = 5;
-    private static final int INDICE_DISCO_THROUGHPUT = 6;
-    private static final int INDICE_DISCO_IOPS = 7;
-    private static final int INDICE_DISCO_READ_COUNT = 8;
-    private static final int INDICE_DISCO_WRITE_COUNT = 9;
-    private static final int INDICE_DISCO_LATENCIA = 10;
-    private static final int INDICE_PROCESSOS_INICIO = 11;
-    private static final int NUM_PROCESSOS = 9; // nome1..nome10 conforme header
-    private static final int DADOS_POR_PROCESSO = 3; // nome, cpu_perc, mem_perc
+    private static final Integer INDICE_MAC_ADRESS = 0;
+    private static final Integer INDICE_TIMESTAMP = 1;
+    private static final Integer INDICE_ID_MAINFRAME = 2;
+    private static final Integer INDICE_USO_CPU_TOTAL = 3;
+    private static final Integer INDICE_USO_RAM_TOTAL = 4;
+    private static final Integer INDICE_USO_DISCO_TOTAL = 5;
+    private static final Integer INDICE_DISCO_THROUGHPUT = 6;
+    private static final Integer INDICE_DISCO_IOPS = 7;
+    private static final Integer INDICE_DISCO_READ_COUNT = 8;
+    private static final Integer INDICE_DISCO_WRITE_COUNT = 9;
+    private static final Integer INDICE_DISCO_LATENCIA = 10;
+    private static final Integer INDICE_PROCESSOS_INICIO = 11;
+    private static final Integer NUM_PROCESSOS = 9; // nome1..nome10 conforme header
+    private static final Integer DADOS_POR_PROCESSO = 3; // nome, cpu_perc, mem_perc
 
 
-    private static final double CPU_MUITO_URGENTE = 85.0;
-    private static final double RAM_MUITO_URGENTE = 90.0;
-    private static final double DISCO_MUITO_URGENTE = 80.0;
+    private static final Double CPU_MUITO_URGENTE = 85.0;
+    private static final Double RAM_MUITO_URGENTE = 90.0;
+    private static final Double DISCO_MUITO_URGENTE = 80.0;
 
-    private static final double CPU_URGENTE = 70.0;
-    private static final double RAM_URGENTE = 80.0;
-    private static final double DISCO_URGENTE = 75.0;
+    private static final Double CPU_URGENTE = 70.0;
+    private static final Double RAM_URGENTE = 80.0;
+    private static final Double DISCO_URGENTE = 75.0;
 
-    private static final double CPU_EMERGENCIA = 95.0;
-    private static final double RAM_EMERGENCIA = 95.0;
-    private static final double DISCO_LATENCIA_EMERGENCIA_MS = 50.0;
+    private static final Double CPU_EMERGENCIA = 95.0;
+    private static final Double RAM_EMERGENCIA = 95.0;
+    private static final Double DISCO_LATENCIA_EMERGENCIA_MS = 50.0;
 
 
-    private static final int TARGET_ALTA_MIN = 120;
-    private static final int TARGET_MEDIA_MIN = 240;
-    private static final int TARGET_BAIXA_MIN = 480;
+    private static final Integer TARGET_ALTA_MIN = 120;
+    private static final Integer TARGET_MEDIA_MIN = 240;
+    private static final Integer TARGET_BAIXA_MIN = 480;
 
     public static void main(String[] args) {
         System.out.println("Iniciando DashboardDataProcessorV2...");
@@ -100,7 +100,6 @@ public class DashboardDataProcessor {
 
         System.out.println("Processamento finalizado. Arquivo gerado: " + ARQUIVO_SAIDA_JSON);
     }
-
     private static Map<String, Object> gerarPeriodo(List<Record> allRecords, PeriodFilter periodo) {
         // filtra registros que caem no período
         Instant now = Instant.now();
@@ -114,11 +113,11 @@ public class DashboardDataProcessor {
         Map<String, List<Record>> porMainframe = filtered.stream()
                 .collect(Collectors.groupingBy(r -> r.identificacaoMainframe));
 
-        // Para KPIs agregados do período
-        int totalAlertas = 0;
-        int totalMuitoUrgente = 0;
-        int totalUrgente = 0;
-        int totalEmergencia = 0;
+        // Para kpi agregado do período
+        Integer totalAlertas = 0;
+        Integer totalMuitoUrgente = 0;
+        Integer totalUrgente = 0;
+        Integer totalEmergencia = 0;
 
         Map<String, Object> mainframesMap = new TreeMap<>(); // ordenado por nome
 
@@ -132,24 +131,23 @@ public class DashboardDataProcessor {
             List<Record> recs = e.getValue();
 
             // agregações por mainframe
-            int registros = recs.size();
-            double avgCpu = recs.stream().mapToDouble(r -> r.usoCpuTotal).average().orElse(0.0);
-            double avgRam = recs.stream().mapToDouble(r -> r.usoRamTotal).average().orElse(0.0);
-            double avgDisco = recs.stream().mapToDouble(r -> r.usoDiscoTotal).average().orElse(0.0);
+            Integer registros = recs.size();
+            Double avgCpu = recs.stream().mapToDouble(r -> r.usoCpuTotal).average().orElse(0.0);
+            Double avgRam = recs.stream().mapToDouble(r -> r.usoRamTotal).average().orElse(0.0);
+            Double avgDisco = recs.stream().mapToDouble(r -> r.usoDiscoTotal).average().orElse(0.0);
 
             // contadores de alertas por tipo
-            int mturge = 0, urge = 0, emerge = 0;
-            int cpuAlertCnt = 0, ramAlertCnt = 0, discoAlertCnt = 0;
+            Integer mturge = 0, urge = 0, emerge = 0;
+            Integer cpuAlertCnt = 0, ramAlertCnt = 0, discoAlertCnt = 0;
 
-            // para top processos
+            // top processos
             Map<String, Double> processCpuSum = new HashMap<>();
             Map<String, Double> processMemSum = new HashMap<>();
 
             for (Record r : recs) {
-                // conta alerts por registro usando thresholds
-                boolean isEmergencia = (r.usoCpuTotal >= CPU_EMERGENCIA) || (r.usoRamTotal >= RAM_EMERGENCIA) || (r.discoLatenciaMs >= DISCO_LATENCIA_EMERGENCIA_MS);
-                boolean isMuitoUrgente = (r.usoCpuTotal >= CPU_MUITO_URGENTE) || (r.usoRamTotal >= RAM_MUITO_URGENTE) || (r.usoDiscoTotal >= DISCO_MUITO_URGENTE);
-                boolean isUrgente = (r.usoCpuTotal >= CPU_URGENTE) || (r.usoRamTotal >= RAM_URGENTE) || (r.usoDiscoTotal >= DISCO_URGENTE);
+                Boolean isEmergencia = (r.usoCpuTotal >= CPU_EMERGENCIA) || (r.usoRamTotal >= RAM_EMERGENCIA) || (r.discoLatenciaMs >= DISCO_LATENCIA_EMERGENCIA_MS);
+                Boolean isMuitoUrgente = (r.usoCpuTotal >= CPU_MUITO_URGENTE) || (r.usoRamTotal >= RAM_MUITO_URGENTE) || (r.usoDiscoTotal >= DISCO_MUITO_URGENTE);
+                Boolean isUrgente = (r.usoCpuTotal >= CPU_URGENTE) || (r.usoRamTotal >= RAM_URGENTE) || (r.usoDiscoTotal >= DISCO_URGENTE);
 
                 if (isEmergencia) { emerge++; }
                 if (isMuitoUrgente) { mturge++; }
@@ -159,7 +157,6 @@ public class DashboardDataProcessor {
                 if (r.usoRamTotal >= RAM_URGENTE) ramAlertCnt++;
                 if (r.usoDiscoTotal >= DISCO_URGENTE || r.discoLatenciaMs >= DISCO_LATENCIA_EMERGENCIA_MS) discoAlertCnt++;
 
-                // processos
                 for (ProcessInfo p : r.processos) {
                     if (p.nome == null || p.nome.trim().isEmpty()) continue;
                     processCpuSum.put(p.nome, processCpuSum.getOrDefault(p.nome, 0.0) + p.cpuPerc);
@@ -167,7 +164,7 @@ public class DashboardDataProcessor {
                 }
             }
 
-            // top processos por CPU e MEM (ordenados decrescente)
+            // top processos cpu
             List<Map<String, Object>> topCpu = processCpuSum.entrySet().stream()
                     .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                     .limit(5)
@@ -178,6 +175,7 @@ public class DashboardDataProcessor {
                         return m;
                     }).collect(Collectors.toList());
 
+            // top processos memoria
             List<Map<String, Object>> topMem = processMemSum.entrySet().stream()
                     .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
                     .limit(5)
@@ -188,29 +186,29 @@ public class DashboardDataProcessor {
                         return m;
                     }).collect(Collectors.toList());
 
-            // impacto SLA (simples) - soma alertas / registros
-            int totalAlertsMf = mturge + urge + emerge;
+            Integer totalAlertsMf = mturge + urge + emerge;
             totalAlertas += totalAlertsMf;
             totalMuitoUrgente += mturge;
             totalUrgente += urge;
             totalEmergencia += emerge;
 
-            // tempoSolucao (simulado) para o mainframe por criticidade
             Map<String, Object> tempoSolucaoCalc = calcularTempoSolucaoSimulado(mturge, urge, emerge);
 
-            // componente crítico
             String componenteCritico = "CPU";
             if (avgRam >= avgCpu && avgRam >= avgDisco) componenteCritico = "RAM";
             else if (avgDisco >= avgCpu && avgDisco >= avgRam) componenteCritico = "DISCO";
 
-            // montar objeto principal do mainframe
+            // obj mainframe
             Map<String, Object> mfObj = new LinkedHashMap<>();
+
             mfObj.put("nome", mfName);
             mfObj.put("registros", registros);
             mfObj.put("avgCpuPerc", round(avgCpu, 2));
             mfObj.put("avgRamPerc", round(avgRam, 2));
             mfObj.put("avgDiscoPerc", round(avgDisco, 2));
+
             mfObj.put("alertas_total", totalAlertsMf);
+
             Map<String, Integer> breakdown = new LinkedHashMap<>();
             breakdown.put("mturge", mturge);
             breakdown.put("urge", urge);
@@ -228,16 +226,28 @@ public class DashboardDataProcessor {
             mfObj.put("top_processos_cpu", topCpu);
             mfObj.put("top_processos_mem", topMem);
 
-            // adiciona ao map por mainframe
+            // sla
+            Long saudaveis = recs.stream().filter(r -> r.usoCpuTotal < 95).count();
+            Double uptime = registros == 0 ? 0 : (saudaveis * 100.0 / registros);
+
+            Map<String, Object> sla = new LinkedHashMap<>();
+            sla.put("contratado", 99.9);
+            sla.put("uptime", round(uptime, 2));
+            mfObj.put("sla", sla);
+
+            // rto
+            Map<String, Object> rto = new LinkedHashMap<>();
+            rto.put("estimadoMinutos", 15);
+            rto.put("metricaUsada", "tempoMedioRecuperacao");
+            mfObj.put("rto", rto);
+
             mainframesMap.put(mfName, mfObj);
 
-            // adiciona às listas para estatísticas do período
             listaCpu.add(avgCpu);
             listaRam.add(avgRam);
             listaDisco.add(avgDisco);
         }
 
-        // COMPONENTES resumo do período
         Map<String, Object> componentesResumo = gerarResumoComponentes(listaCpu, listaRam, listaDisco);
 
         // KPI do período
@@ -247,20 +257,19 @@ public class DashboardDataProcessor {
         kpis.put("urge", totalUrgente);
         kpis.put("emerge", totalEmergencia);
 
-        // disponibilidade estimada com base nas médias
-        double mediaCpu = listaCpu.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-        double mediaRam = listaRam.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-        double mediaDisco = listaDisco.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        Double mediaCpu = listaCpu.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        Double mediaRam = listaRam.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        Double mediaDisco = listaDisco.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
 
-        double disponibilidade = calcularDisponibilidade(mediaCpu, mediaRam, mediaDisco);
+        Double disponibilidade = calcularDisponibilidade(mediaCpu, mediaRam, mediaDisco);
         kpis.put("disponibilidade", round(disponibilidade, 2));
 
-        // tempoSolucao agregado para o período (base nos agregados de todos mainframes)
         Map<String, Object> tempoSolucaoPeriodo = calcularTempoSolucaoPeriodoAggregate(mainframesMap);
 
-        // RTO: target fixa => 120 min ; atual = maior atualMinutes do tempoSolucaoPeriodo
-        Map<String, Object> rto = new LinkedHashMap<>();
-        rto.put("targetMinutes", TARGET_ALTA_MIN);
+        // rto
+        Map<String, Object> rtoPeriodo = new LinkedHashMap<>();
+        rtoPeriodo.put("targetMinutes", TARGET_ALTA_MIN);
+
         int atualRto = (int) tempoSolucaoPeriodo.values().stream()
                 .filter(v -> v instanceof Map)
                 .map(m -> (Map<?, ?>) m)
@@ -268,21 +277,22 @@ public class DashboardDataProcessor {
                     Object valObj = m.get("atualMinutes");
                     return (valObj instanceof Number)
                             ? ((Number) valObj).doubleValue()
-                            : 0.0; // fallback seguro
+                            : 0.0;
                 })
                 .max()
                 .orElse((double) TARGET_ALTA_MIN);
 
-        rto.put("atualMinutes", atualRto);
+        rtoPeriodo.put("atualMinutes", atualRto);
 
         periodoObj.put("kpis", kpis);
         periodoObj.put("mainframes", mainframesMap);
         periodoObj.put("componentes", componentesResumo);
         periodoObj.put("tempoSolucao", tempoSolucaoPeriodo);
-        periodoObj.put("rto", rto);
+        periodoObj.put("rto", rtoPeriodo);
 
         return periodoObj;
     }
+
 
     private static Map<String, Object> gerarResumoComponentes(List<Double> listaCpu, List<Double> listaRam, List<Double> listaDisco) {
         Map<String, Object> comp = new LinkedHashMap<>();
@@ -303,13 +313,13 @@ public class DashboardDataProcessor {
         return m;
     }
 
-    private static Map<String, Object> calcularTempoSolucaoSimulado(int mturge, int urge, int emerge) {
+    private static Map<String, Object> calcularTempoSolucaoSimulado(Integer mturge, Integer urge, Integer emerge) {
         // heurística simples: se tem emergências, atual = target * 1.7 ; muito urgente -> 1.5 ; urgente -> 1.2 ; caso contrário < target
         Map<String, Object> result = new LinkedHashMap<>();
 
-        double factorAlta = (emerge > 0) ? 1.7 : (mturge > 0 ? 1.5 : (urge > 0 ? 1.2 : 0.9));
-        double factorMedia = (emerge > 0) ? 1.4 : (mturge > 0 ? 1.2 : (urge > 0 ? 1.1 : 0.9));
-        double factorBaixa = (emerge > 0) ? 1.2 : (mturge > 0 ? 1.1 : (urge > 0 ? 1.05 : 0.95));
+        Double factorAlta = (emerge > 0) ? 1.7 : (mturge > 0 ? 1.5 : (urge > 0 ? 1.2 : 0.9));
+        Double factorMedia = (emerge > 0) ? 1.4 : (mturge > 0 ? 1.2 : (urge > 0 ? 1.1 : 0.9));
+        Double factorBaixa = (emerge > 0) ? 1.2 : (mturge > 0 ? 1.1 : (urge > 0 ? 1.05 : 0.95));
 
         Map<String, Object> alta = new LinkedHashMap<>();
         alta.put("targetMinutes", TARGET_ALTA_MIN);
@@ -331,7 +341,7 @@ public class DashboardDataProcessor {
 
     private static Map<String, Object> calcularTempoSolucaoPeriodoAggregate(Map<String, Object> mainframesMap) {
 
-        int maxAlta = 0, maxMedia = 0, maxBaixa = 0;
+        Integer maxAlta = 0, maxMedia = 0, maxBaixa = 0;
 
         for (Object v : mainframesMap.values()) {
 
@@ -343,17 +353,17 @@ public class DashboardDataProcessor {
 
             Map<?, ?> tempo = (Map<?, ?>) tempoObj;
 
-            // --- ALTA ---
-            Object altaObj = tempo.get("alta");
+            // mt urgente
+            Object altaObj = tempo.get("Muito Urgente");
             if (altaObj instanceof Map) {
                 Map<?, ?> alta = (Map<?, ?>) altaObj;
                 Object valObj = alta.get("atualMinutes");
-                int val = (valObj instanceof Number) ? ((Number) valObj).intValue() : 0;
+                Integer val = (valObj instanceof Number) ? ((Number) valObj).intValue() : 0;
                 maxAlta = Math.max(maxAlta, val);
             }
 
-            // --- MÉDIA ---
-            Object mediaObj = tempo.get("media");
+            // urgente
+            Object mediaObj = tempo.get("Urgente");
             if (mediaObj instanceof Map) {
                 Map<?, ?> media = (Map<?, ?>) mediaObj;
                 Object valObj = media.get("atualMinutes");
@@ -361,8 +371,8 @@ public class DashboardDataProcessor {
                 maxMedia = Math.max(maxMedia, val);
             }
 
-            // --- BAIXA ---
-            Object baixaObj = tempo.get("baixa");
+            // emergente
+            Object baixaObj = tempo.get("Emergente");
             if (baixaObj instanceof Map) {
                 Map<?, ?> baixa = (Map<?, ?>) baixaObj;
                 Object valObj = baixa.get("atualMinutes");
@@ -393,17 +403,17 @@ public class DashboardDataProcessor {
     }
 
 
-    private static double calcularDisponibilidade(double avgCpu, double avgRam, double avgDisco) {
-        // heurística simples: maior uso -> menor disponibilidade
-        double penalty = (avgCpu * 0.05) + (avgRam * 0.03) + (avgDisco * 0.02);
-        double availability = 100.0 - penalty;
+    private static double calcularDisponibilidade(Double avgCpu, Double avgRam, Double avgDisco) {
+        //  maior uso -> menor disponibilidade
+        Double penalty = (avgCpu * 0.05) + (avgRam * 0.03) + (avgDisco * 0.02);
+        Double availability = 100.0 - penalty;
         if (availability > 100.0) availability = 100.0;
         if (availability < 0.0) availability = 0.0;
         return availability;
     }
 
     private static boolean isInPeriod(Instant ts, PeriodFilter periodo, Instant now) {
-        long days = Duration.between(ts, now).toDays();
+        Long days = Duration.between(ts, now).toDays();
         switch (periodo) {
             case SEMANA:
                 return days <= 7;
@@ -418,9 +428,9 @@ public class DashboardDataProcessor {
         }
     }
 
-    private static double round(double v, int decimals) {
+    private static double round(Double v, Integer decimals) {
         if (Double.isNaN(v) || Double.isInfinite(v)) return 0.0;
-        double factor = Math.pow(10, decimals);
+        Double factor = Math.pow(10, decimals);
         return Math.round(v * factor) / factor;
     }
 
@@ -428,7 +438,7 @@ public class DashboardDataProcessor {
         List<String[]> linhas = new ArrayList<>();
         List<String> raw = Files.readAllLines(Paths.get(caminhoArquivo));
         if (raw.isEmpty()) return linhas;
-        boolean primeira = true;
+        Boolean primeira = true;
         for (String l : raw) {
             if (primeira) { primeira = false; continue; } // pula header
             if (l == null || l.trim().isEmpty()) continue;
@@ -439,22 +449,21 @@ public class DashboardDataProcessor {
 
     private static Record parseLinha(String[] cols) {
         try {
-            if (cols.length < INDICE_PROCESSOS_INICIO + (NUM_PROCESSOS * DADOS_POR_PROCESSO))
-                ; // ainda permite linhas menores, mas tentaremos parsear o que há
+            if (cols.length < INDICE_PROCESSOS_INICIO + (NUM_PROCESSOS * DADOS_POR_PROCESSO)) ; // ainda permite linhas menores
 
             String mac = safeGet(cols, INDICE_MAC_ADRESS);
             String tsRaw = safeGet(cols, INDICE_TIMESTAMP);
             String idMainframe = safeGet(cols, INDICE_ID_MAINFRAME);
 
-            // normaliza números (vírgula -> ponto)
-            double usoCpu = parseDouble(safeGet(cols, INDICE_USO_CPU_TOTAL));
-            double usoRam = parseDouble(safeGet(cols, INDICE_USO_RAM_TOTAL));
-            double usoDisco = parseDouble(safeGet(cols, INDICE_USO_DISCO_TOTAL));
-            double discoThroughput = parseDouble(safeGet(cols, INDICE_DISCO_THROUGHPUT));
-            double discoIops = parseDouble(safeGet(cols, INDICE_DISCO_IOPS));
-            double discoRead = parseDouble(safeGet(cols, INDICE_DISCO_READ_COUNT));
-            double discoWrite = parseDouble(safeGet(cols, INDICE_DISCO_WRITE_COUNT));
-            double discoLat = parseDouble(safeGet(cols, INDICE_DISCO_LATENCIA));
+            // vírgula vira ponto
+            Double usoCpu = parseDouble(safeGet(cols, INDICE_USO_CPU_TOTAL));
+            Double usoRam = parseDouble(safeGet(cols, INDICE_USO_RAM_TOTAL));
+            Double usoDisco = parseDouble(safeGet(cols, INDICE_USO_DISCO_TOTAL));
+            Double discoThroughput = parseDouble(safeGet(cols, INDICE_DISCO_THROUGHPUT));
+            Double discoIops = parseDouble(safeGet(cols, INDICE_DISCO_IOPS));
+            Double discoRead = parseDouble(safeGet(cols, INDICE_DISCO_READ_COUNT));
+            Double discoWrite = parseDouble(safeGet(cols, INDICE_DISCO_WRITE_COUNT));
+            Double discoLat = parseDouble(safeGet(cols, INDICE_DISCO_LATENCIA));
 
             // parse timestamp
             LocalDateTime ldt = LocalDateTime.parse(tsRaw.trim(), TS_FORMATTER);
@@ -462,18 +471,18 @@ public class DashboardDataProcessor {
 
             // processos
             List<ProcessInfo> processos = new ArrayList<>();
-            int base = INDICE_PROCESSOS_INICIO;
+            Integer base = INDICE_PROCESSOS_INICIO;
             for (int i = 0; i < NUM_PROCESSOS; i++) {
-                int idxNome = base + (i * DADOS_POR_PROCESSO);
-                int idxCpu = idxNome + 1;
-                int idxMem = idxNome + 2;
+                Integer idxNome = base + (i * DADOS_POR_PROCESSO);
+                Integer idxCpu = idxNome + 1;
+                Integer idxMem = idxNome + 2;
                 String nome = safeGet(cols, idxNome);
                 String cpuRaw = safeGet(cols, idxCpu);
                 String memRaw = safeGet(cols, idxMem);
                 if ((nome == null || nome.trim().isEmpty()) && (cpuRaw == null || cpuRaw.trim().isEmpty()) && (memRaw == null || memRaw.trim().isEmpty()))
                     continue;
-                double cpuPerc = parseDoubleAllowNA(cpuRaw);
-                double memPerc = parseDoubleAllowNA(memRaw);
+                Double cpuPerc = parseDoubleAllowNA(cpuRaw);
+                Double memPerc = parseDoubleAllowNA(memRaw);
                 processos.add(new ProcessInfo(nome == null ? "N/A" : nome, cpuPerc, memPerc));
             }
 
@@ -484,7 +493,7 @@ public class DashboardDataProcessor {
         }
     }
 
-    private static String safeGet(String[] arr, int idx) {
+    private static String safeGet(String[] arr, Integer idx) {
         if (arr == null || idx < 0 || idx >= arr.length) return "";
         return arr[idx] == null ? "" : arr[idx].trim();
     }
@@ -512,23 +521,22 @@ public class DashboardDataProcessor {
         }
     }
 
-    // ---------- Classes auxiliares ----------
     private static class Record {
         String macAdress;
         Instant timestamp;
         String identificacaoMainframe;
-        double usoCpuTotal;
-        double usoRamTotal;
-        double usoDiscoTotal;
-        double discoThroughput;
-        double discoIops;
-        double discoReadCount;
-        double discoWriteCount;
-        double discoLatenciaMs;
+        Double usoCpuTotal;
+        Double usoRamTotal;
+        Double usoDiscoTotal;
+        Double discoThroughput;
+        Double discoIops;
+        Double discoReadCount;
+        Double discoWriteCount;
+        Double discoLatenciaMs;
         List<ProcessInfo> processos;
 
-        public Record(String mac, Instant ts, String idMainframe, double usoCpu, double usoRam, double usoDisco,
-                      double throughput, double iops, double read, double write, double latencia, List<ProcessInfo> processos) {
+        public Record(String mac, Instant ts, String idMainframe, Double usoCpu, Double usoRam, Double usoDisco,
+                      Double throughput, Double iops, Double read, Double write, Double latencia, List<ProcessInfo> processos) {
             this.macAdress = mac;
             this.timestamp = ts;
             this.identificacaoMainframe = (idMainframe == null || idMainframe.isEmpty()) ? "UNKNOWN" : idMainframe;
@@ -546,10 +554,10 @@ public class DashboardDataProcessor {
 
     private static class ProcessInfo {
         String nome;
-        double cpuPerc;
-        double memPerc;
+        Double cpuPerc;
+        Double memPerc;
 
-        public ProcessInfo(String nome, double cpuPerc, double memPerc) {
+        public ProcessInfo(String nome, Double cpuPerc, Double memPerc) {
             this.nome = nome;
             this.cpuPerc = cpuPerc;
             this.memPerc = memPerc;
