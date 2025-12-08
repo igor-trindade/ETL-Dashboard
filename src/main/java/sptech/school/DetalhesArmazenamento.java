@@ -86,7 +86,20 @@ public class DetalhesArmazenamento {
                     continue;
                 }
 
-                int ultimo = linhas.size() - 1;
+                // procurar a última linha válida que contenha um MAC no índice 0
+                int ultimo = -1;
+                for (int i = linhas.size() - 1; i >= 0; i--) {
+                    String[] l = linhas.get(i);
+                    if (l.length >= 9 && isValidMac(l[0])) {
+                        ultimo = i;
+                        break;
+                    }
+                }
+
+                if (ultimo == -1) {
+                    System.out.println("    AVISO: Não foi encontrada nenhuma linha válida com MAC para o diretório " + dir + " (empresa " + empresa + ")");
+                    continue;
+                }
 
                 if (linhas.get(ultimo).length < 9) {
                     System.out.println("    AVISO: Última linha incompleta para MAC " + mac + " (células encontradas: " + linhas.get(ultimo).length + ")");
@@ -106,12 +119,16 @@ public class DetalhesArmazenamento {
                 List<Integer> histIops = new ArrayList<>();
                 List<String> histDatas = new ArrayList<>();
 
+                // Preencher histórico com as últimas 5 linhas (1 minuto cada)
                 int idx = ultimo;
                 for (int i = 0; i < 5 && idx >= 0; i++, idx--) {
-                    histDisco.add(parseDouble(linhas.get(idx)[3]));
-                    histLatencia.add(parseDouble(linhas.get(idx)[8]));
-                    histIops.add(parseInt(linhas.get(idx)[5]));
-                    histDatas.add(linhas.get(idx)[1]);
+                    String[] row = linhas.get(idx);
+                    if (row.length < 9) break;
+                    histDisco.add(parseDouble(row[3]));
+                    histLatencia.add(parseDouble(row[8]));
+                    histIops.add(parseInt(row[5]));
+                    // Usar timestamp do CSV (índice 1)
+                    histDatas.add(row[1]);
                 }
 
                 String fabricante = "";
@@ -214,14 +231,45 @@ public class DetalhesArmazenamento {
         System.out.println("JSON consolidado salvo no S3: " + nomeArq);
     }
 
+    private static boolean isValidMac(String s) {
+        if (s == null) return false;
+        String t = s.trim();
+        if (t.isEmpty()) return false;
+        if (t.matches("\\d{8,}")) return true;
+        // formato MAC com separadores
+        if (t.matches("([0-9A-Fa-f]{2}[:\\-]){5}[0-9A-Fa-f]{2}")) return true;
+        return false;
+    }
+
     private static Double parseDouble(String v) {
-        try { return Double.parseDouble(v); }
-        catch (Exception e) { return 0.0; }
+        try {
+            if (v == null) return 0.0;
+            String s = v.trim();
+            if (s.isEmpty()) return 0.0;
+
+            // Lidar com possíveis separadores de milhares e decimais
+            if (s.contains(",") && s.contains(".")) {
+                // assumir '.' como separador de milhares e ',' como decimal
+                s = s.replace(".", "").replace(",", ".");
+            } else if (s.contains(",")) {
+                s = s.replace(",", ".");
+            }
+
+            s = s.replaceAll("[^0-9.\\-]", "");
+            if (s.isEmpty()) return 0.0;
+            return Double.parseDouble(s);
+        } catch (Exception e) {
+            return 0.0;
+        }
     }
 
     private static Integer parseInt(String v) {
-        try { return Integer.parseInt(v); }
-        catch (Exception e) { return 0; }
+        try {
+            double d = parseDouble(v);
+            return (int) Math.round(d);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private static Double calcAumento(List<Double> hist) {
