@@ -149,9 +149,15 @@ public class DashboardDataProcessor {
                 Boolean isMuitoUrgente = (r.usoCpuTotal >= CPU_MUITO_URGENTE) || (r.usoRamTotal >= RAM_MUITO_URGENTE) || (r.usoDiscoTotal >= DISCO_MUITO_URGENTE);
                 Boolean isUrgente = (r.usoCpuTotal >= CPU_URGENTE) || (r.usoRamTotal >= RAM_URGENTE) || (r.usoDiscoTotal >= DISCO_URGENTE);
 
-                if (isEmergencia) { emerge++; }
-                if (isMuitoUrgente) { mturge++; }
-                if (isUrgente) { urge++; }
+                if (isEmergencia) {
+                    emerge++;
+                }
+                else if (isMuitoUrgente) {
+                    mturge++;
+                }
+                else if (isUrgente) {
+                    urge++;
+                }
 
                 if (r.usoCpuTotal >= CPU_URGENTE) cpuAlertCnt++;
                 if (r.usoRamTotal >= RAM_URGENTE) ramAlertCnt++;
@@ -333,9 +339,9 @@ public class DashboardDataProcessor {
         baixa.put("targetMinutes", TARGET_BAIXA_MIN);
         baixa.put("atualMinutes", (int) Math.round(TARGET_BAIXA_MIN * factorBaixa));
 
-        result.put("alta", alta);
-        result.put("media", media);
-        result.put("baixa", baixa);
+        result.put("Muito Urgente", alta);
+        result.put("Urgente", media);
+        result.put("Emergente", baixa);
         return result;
     }
 
@@ -395,9 +401,9 @@ public class DashboardDataProcessor {
         b.put("targetMinutes", TARGET_BAIXA_MIN);
         b.put("atualMinutes", Math.max(maxBaixa, TARGET_BAIXA_MIN));
 
-        result.put("alta", a);
-        result.put("media", m);
-        result.put("baixa", b);
+        result.put("Muito Urgente", a);
+        result.put("Urgente", m);
+        result.put("Emergente", b);
 
         return result;
     }
